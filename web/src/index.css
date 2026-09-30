@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+  :focus-visible {
+    outline: 2px solid #222;
+    outline-offset: 2px;
+  }
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Map price pins */
+.price-pin {
+  transform: translate(-50%, -50%);
+  display: inline-block;
+  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #fff;
+  color: #222;
+  font: 700 14px/1 Inter, system-ui, sans-serif;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+.price-pin:hover,
+.price-pin.active {
+  transform: translate(-50%, -50%) scale(1.08);
+  background: #222;
+  color: #fff;
+  z-index: 1000;
+}
+.home-pin {
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: #ff385c url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M12 3 2 12h3v8h5v-5h4v5h5v-8h3z'/></svg>") center/22px no-repeat;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+.area-circle {
+  width: 220px;
+  height: 220px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: rgba(255, 56, 92, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.area-circle .home-pin {
+  transform: none;
+}
+.listing-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+}
+.listing-popup .leaflet-popup-content {
+  margin: 0;
+  width: 280px !important;
+}
+.listing-popup .leaflet-popup-tip-container {
+  display: none;
+}
+.leaflet-container {
+  font-family: Inter, system-ui, sans-serif;
+  background: #e8eef1;
+}
+
+/* WharfKit modal above our modals */
+wharfkit-web-ui {
+  position: relative;
+  z-index: 2000;
+}

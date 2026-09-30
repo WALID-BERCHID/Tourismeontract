@@ -107,9 +107,6 @@ router.post(
     const b = get(`SELECT * FROM bookings WHERE id = ?`, r.lastInsertRowid);
 
     const conv = ensureConversation(l.id, req.user.id, l.host_id, b.id);
-    if (body.message.trim()) {
-      run(`INSERT INTO messages (conversation_id, sender_id, body) VALUES (?, ?, ?)`, conv.id, req.user.id, body.message.trim());
-    }
     run(
       `INSERT INTO messages (conversation_id, sender_id, body, kind) VALUES (?, NULL, ?, 'system')`,
       conv.id,
@@ -117,6 +114,9 @@ router.post(
         ? `Reservation ${b.code} confirmed · ${body.checkIn} → ${body.checkOut} · ${onChain.amountNative} held in escrow`
         : `Booking request ${b.code} · ${body.checkIn} → ${body.checkOut} · ${onChain.amountNative} held in escrow. The host has 24 hours to respond.`
     );
+    if (body.message.trim()) {
+      run(`INSERT INTO messages (conversation_id, sender_id, body) VALUES (?, ?, ?)`, conv.id, req.user.id, body.message.trim());
+    }
     run(`UPDATE conversations SET updated_at = datetime('now') WHERE id = ?`, conv.id);
 
     const d = bookingEmailData(b);
