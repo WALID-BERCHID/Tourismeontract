@@ -15,7 +15,7 @@
     "web": "npm run dev -w web",
     "dev": "concurrently -n chain,deploy,api,web -c yellow,magenta,cyan,green \"npm run chain\" \"wait-on tcp:8545 && npm run deploy:local\" \"wait-on tcp:8545 file:web/src/config/deployments.json && npm run server\" \"npm run web\"",
     "test": "npm test -w contracts/evm && npm test -w server",
-    "reset-db": "rm -f server/data/tourisme.db* && echo 'Database removed – it will be re-seeded on next start'",
+    "reset-db": "node -e \"const fs=require('fs');for(const f of ['tourisme.db','tourisme.db-wal','tourisme.db-shm'])fs.rmSync('server/data/'+f,{force:true});console.log('Database removed - it will be re-seeded on next start')\"",
     "build": "npm run build -w web"
   },
   "devDependencies": {
