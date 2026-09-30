@@ -1,6 +1,5 @@
 import { Router } from "express";
 import fs from "node:fs";
-import path from "node:path";
 import crypto from "node:crypto";
 import multer from "multer";
 import { config } from "../config.js";
@@ -109,14 +108,16 @@ meta.get(
 // Photo uploads
 // ---------------------------------------------------------------------------
 
+const IMAGE_TYPES = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif" };
 fs.mkdirSync(config.uploadDir, { recursive: true });
 const upload = multer({
   storage: multer.diskStorage({
     destination: config.uploadDir,
-    filename: (_req, file, cb) => cb(null, `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${path.extname(file.originalname).toLowerCase() || ".jpg"}`),
+    // The extension comes from the validated MIME type, never from the client's filename.
+    filename: (_req, file, cb) => cb(null, `${Date.now()}-${crypto.randomBytes(6).toString("hex")}.${IMAGE_TYPES[file.mimetype]}`),
   }),
   limits: { fileSize: 10 * 1024 * 1024, files: 20 },
-  fileFilter: (_req, file, cb) => cb(null, /^image\/(jpeg|png|webp|gif|avif)$/.test(file.mimetype)),
+  fileFilter: (_req, file, cb) => cb(null, file.mimetype in IMAGE_TYPES),
 });
 
 meta.post("/uploads", requireAuth, upload.array("photos", 20), (req, res) => {

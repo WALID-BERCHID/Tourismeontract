@@ -38,7 +38,14 @@ export function createApp() {
   app.use("/api", meta);
   app.use("/api", (_req, _res, next) => next(new HttpError(404, "Not found")));
 
-  app.use("/uploads", express.static(config.uploadDir, { maxAge: "30d", immutable: true }));
+  app.use(
+    "/uploads",
+    express.static(config.uploadDir, {
+      maxAge: "30d",
+      immutable: true,
+      setHeaders: (res) => res.setHeader("X-Content-Type-Options", "nosniff"),
+    })
+  );
 
   // In production the API also serves the built web app (single container deploy).
   if (fs.existsSync(path.join(config.webDist, "index.html"))) {
