@@ -193,8 +193,10 @@ export function syncDeployments() {
   for (const [chainId, dep] of Object.entries(evm)) {
     const network = `evm:${chainId}`;
     const key = `deployment:${chainId}`;
+    // A restarted local chain redeploys to the same address, so include the deploy time.
+    const fingerprint = `${dep.escrow.toLowerCase()}:${dep.deployedAt || ""}`;
     const prev = kvGet(key);
-    if (prev && prev !== dep.escrow.toLowerCase()) {
+    if (prev && prev !== fingerprint) {
       console.log(`[seed] escrow on ${network} changed – clearing stale on-chain records`);
       const stale = all(`SELECT id FROM bookings WHERE network = ? AND chain_booking_id IS NOT NULL`, network).map((r) => r.id);
       for (const id of stale) {
@@ -205,7 +207,7 @@ export function syncDeployments() {
       run(`DELETE FROM listing_chains WHERE network = ?`, network);
       run(`DELETE FROM kv WHERE key LIKE ?`, `indexer:${chainId}:%`);
     }
-    kvSet(key, dep.escrow.toLowerCase());
+    kvSet(key, fingerprint);
     for (const [slug, chainListingId] of Object.entries(dep.seedListings || {})) {
       const l = get(`SELECT id FROM listings WHERE slug = ?`, slug);
       if (!l) continue;

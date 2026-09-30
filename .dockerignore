@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+.git
+contracts/evm/artifacts
+contracts/evm/cache
+contracts/solana/target
+server/data/*.db*
+server/uploads/*
+.env

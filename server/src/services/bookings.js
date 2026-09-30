@@ -1,3 +1,4 @@
+import { config } from "../config.js";
 import { all, get, run } from "../db.js";
 import { notify } from "../notify.js";
 import { dateFromDay, publicUser } from "../util.js";
@@ -18,7 +19,7 @@ export function bookingEmailData(b) {
     listingTitle: l.title,
     city: l.city,
     location: `${l.city}, ${l.country}`,
-    photo: photos[0],
+    photo: photos[0]?.startsWith("/") ? `${config.appUrl}${photos[0]}` : photos[0],
     checkIn: dateFromDay(b.check_in),
     checkOut: dateFromDay(b.check_out),
     guests: b.guests,
@@ -27,8 +28,8 @@ export function bookingEmailData(b) {
     amountNative: b.amount_native,
     network: networkLabel(b.network),
     txUrl: explorerUrl(b.network, b.tx_hash),
-    hostName: host.first_name,
-    guestName: `${guest.first_name} ${guest.last_name ? guest.last_name[0] + "." : ""}`.trim(),
+    hostName: host.first_name || "your host",
+    guestName: `${guest.first_name || "A guest"} ${guest.first_name && guest.last_name ? guest.last_name[0] + "." : ""}`.trim(),
     policy: POLICY_LABEL[l.cancellation_policy],
     hostPayout: Math.round(b.subtotal_usd * 0.97 * 100) / 100,
   };

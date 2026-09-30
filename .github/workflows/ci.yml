@@ -1,0 +1,32 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Smart contracts
+        run: npm test -w contracts/evm
+      - name: Local chain + deploy
+        run: |
+          (cd contracts/evm && npx hardhat node > /tmp/chain.log 2>&1 &)
+          npx wait-on tcp:8545
+          npm run deploy:local
+      - name: API tests (incl. on-chain booking e2e)
+        run: npm test -w server
+      - name: Web typecheck & build
+        run: npm run build -w web
+  solana:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test
+        working-directory: contracts/solana

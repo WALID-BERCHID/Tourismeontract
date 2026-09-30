@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { User } from "../lib/types";
 import { toast } from "sonner";
 import { Mail } from "lucide-react";
 import { useAuth } from "../lib/auth";
@@ -134,6 +135,62 @@ export default function AuthModal() {
           </>
         )}
       </div>
+    </Modal>
+  );
+}
+
+/** Wallet-only sign-ups have no name or email yet: ask once so hosts know who's coming and emails can be sent. */
+export function CompleteProfileModal() {
+  const { user, setUser } = useAuth();
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return sessionStorage.getItem("tourisme.profilePrompt") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  if (!user || user.firstName || dismissed) return null;
+  const close = () => {
+    setDismissed(true);
+    try {
+      sessionStorage.setItem("tourisme.profilePrompt", "1");
+    } catch {
+      /* ignore */
+    }
+  };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setErrors({});
+    try {
+      const r = await api.patch<{ user: User }>("/users/me", { firstName: form.firstName, lastName: form.lastName, ...(form.email ? { email: form.email } : {}) });
+      setUser(r.user);
+      toast.success(form.email ? "Profile saved – check your inbox to confirm your email" : "Profile saved");
+    } catch (err) {
+      if (err instanceof ApiError) setErrors(err.fields || { firstName: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Modal open onClose={close} title="Finish signing up" size="sm">
+      <form onSubmit={submit} className="space-y-3 p-6">
+        <p className="mb-2 text-ink-muted">Your wallet is connected. Tell hosts who you are and where to send booking confirmations.</p>
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="First name" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} error={errors.firstName} required autoFocus />
+          <Input label="Last name" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} error={errors.lastName} />
+        </div>
+        <Input label="Email (for confirmations)" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} error={errors.email} hint="We never share your email with hosts." />
+        <Button type="submit" full size="lg" loading={busy} disabled={!form.firstName.trim()}>
+          Save and continue
+        </Button>
+        <button type="button" onClick={close} className="w-full pt-1 text-center text-sm font-semibold underline">
+          Skip for now
+        </button>
+      </form>
     </Modal>
   );
 }

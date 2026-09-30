@@ -772,6 +772,11 @@ export default function ListingEditor() {
               </Alert>
             )}
             {content[step]}
+            {isNew && step === "payments" && (
+              <Button variant="outline" className="mt-8" onClick={() => navigate("/hosting/listings")}>
+                Done – go to my listings
+              </Button>
+            )}
             {editing && !["availability", "payments"].includes(step) && (
               <div className="mt-10">
                 <Button variant="dark" loading={saving} onClick={() => save().then((l) => l && toast.success("Changes saved"))}>
@@ -810,13 +815,6 @@ export default function ListingEditor() {
             </div>
           </div>
         </div>
-      )}
-      {savedId && step === "payments" && isNew && (
-        <Container className="mt-10 max-w-3xl">
-          <Button variant="outline" onClick={() => navigate("/hosting/listings")}>
-            Done
-          </Button>
-        </Container>
       )}
     </div>
   );

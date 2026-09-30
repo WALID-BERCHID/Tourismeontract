@@ -121,7 +121,9 @@ const upload = multer({
 
 meta.post("/uploads", requireAuth, upload.array("photos", 20), (req, res) => {
   if (!req.files?.length) throw new HttpError(400, "Upload JPG, PNG or WebP images up to 10 MB");
-  res.status(201).json({ urls: req.files.map((f) => `${config.apiUrl}/uploads/${f.filename}`) });
+  // Relative URLs work on any domain; set PUBLIC_UPLOADS_URL to serve uploads from a CDN.
+  const base = process.env.PUBLIC_UPLOADS_URL?.replace(/\/$/, "") || "/uploads";
+  res.status(201).json({ urls: req.files.map((f) => `${base}/${f.filename}`) });
 });
 
 // ---------------------------------------------------------------------------

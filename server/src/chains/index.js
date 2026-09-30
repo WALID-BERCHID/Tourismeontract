@@ -28,13 +28,23 @@ export function explorerUrl(network, txHash) {
   return eosExplorerTx(txHash);
 }
 
+/**
+ * EVM_CHAIN_IDS (comma separated) restricts which deployed networks are offered. By default every
+ * deployment is offered, except the local Hardhat chain in production.
+ */
+export function evmChainEnabled(chainId) {
+  const allow = process.env.EVM_CHAIN_IDS;
+  if (allow) return allow.split(",").map((s) => s.trim()).includes(String(chainId));
+  return !(config.isProd && String(chainId) === "31337");
+}
+
 /** Networks the web app can offer for payment, with contract addresses. */
 export function supportedNetworks() {
   const out = [];
   const evm = config.deployments?.evm || {};
   for (const [chainId, dep] of Object.entries(evm)) {
     const net = EVM_NETWORKS[chainId];
-    if (!net) continue;
+    if (!net || !evmChainEnabled(chainId)) continue;
     out.push({
       id: `evm:${chainId}`,
       chain: "evm",

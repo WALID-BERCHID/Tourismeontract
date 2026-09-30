@@ -3,7 +3,7 @@ import { Outlet, Route, Routes, useLocation } from "react-router-dom";
 import { Toaster } from "sonner";
 import Header, { MobileTabBar } from "./components/Header";
 import Footer from "./components/Footer";
-import AuthModal from "./components/AuthModal";
+import AuthModal, { CompleteProfileModal } from "./components/AuthModal";
 import { PageLoader } from "./components/ui";
 import Home from "./pages/Home";
 import { RequireAuth } from "./pages/Trips";
@@ -94,6 +94,7 @@ export default function App() {
         </Route>
       </Routes>
       <AuthModal />
+      <CompleteProfileModal />
       <Toaster position="bottom-left" toastOptions={{ className: "!rounded-xl !font-sans" }} />
     </>
   );

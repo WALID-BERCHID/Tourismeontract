@@ -1,0 +1,27 @@
+# Production-style deployment: one container serving the API and the web app.
+#   cp .env.example .env   # then fill in your values
+#   docker compose up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    ports:
+      - "4000:4000"
+    volumes:
+      - tourisme-data:/data
+      # Mount your own deployments file after deploying the contracts to a testnet/mainnet:
+      # - ./web/src/config/deployments.json:/app/web/src/config/deployments.json:ro
+
+  # Optional: a local EVM chain for demos/staging (remove in production).
+  # chain:
+  #   image: node:22-bookworm-slim
+  #   working_dir: /app/contracts/evm
+  #   volumes: [".:/app"]
+  #   command: sh -c "npm ci && npx hardhat node --hostname 0.0.0.0"
+  #   ports: ["8545:8545"]
+
+volumes:
+  tourisme-data:

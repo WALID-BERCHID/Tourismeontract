@@ -1,6 +1,7 @@
 import { config } from "../config.js";
 import { all, get, kvGet, kvSet } from "../db.js";
 import { escrowInterface, evmDeployment, evmProvider } from "../chains/evm.js";
+import { evmChainEnabled } from "../chains/index.js";
 import { notify } from "../notify.js";
 import { applyStatus, bookingEmailData, syncBooking } from "./bookings.js";
 import { todayDay } from "../util.js";
@@ -11,7 +12,7 @@ const topics = WATCHED.map((name) => escrowInterface.getEvent(name).topicHash);
 function indexedChainIds() {
   const deployed = Object.keys(config.deployments?.evm || {});
   const wanted = process.env.INDEX_CHAIN_IDS ? process.env.INDEX_CHAIN_IDS.split(",").map((s) => s.trim()) : deployed;
-  return deployed.filter((id) => wanted.includes(id));
+  return deployed.filter((id) => wanted.includes(id) && evmChainEnabled(id));
 }
 
 /** Follows escrow events so bookings update even when actions happen outside the web app. */
