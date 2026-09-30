@@ -13,7 +13,7 @@
     "deploy:local": "npm run deploy:local -w contracts/evm",
     "server": "npm run dev -w server",
     "web": "npm run dev -w web",
-    "dev": "concurrently -k -n chain,deploy,api,web -c yellow,magenta,cyan,green \"npm run chain\" \"wait-on tcp:8545 && npm run deploy:local\" \"wait-on tcp:8545 file:web/src/config/deployments.json && npm run server\" \"npm run web\"",
+    "dev": "concurrently -n chain,deploy,api,web -c yellow,magenta,cyan,green \"npm run chain\" \"wait-on tcp:8545 && npm run deploy:local\" \"wait-on tcp:8545 file:web/src/config/deployments.json && npm run server\" \"npm run web\"",
     "test": "npm test -w contracts/evm && npm test -w server",
     "reset-db": "rm -f server/data/tourisme.db* && echo 'Database removed – it will be re-seeded on next start'",
     "build": "npm run build -w web"
