@@ -1,0 +1,16 @@
+[toolchain]
+anchor_version = "0.31.1"
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.localnet]
+tourisme_escrow = "2Nd2n5ZHj51hS7QbrfWnsbMx329m3WYKMtLxkQ4bE3rb"
+
+[programs.devnet]
+tourisme_escrow = "2Nd2n5ZHj51hS7QbrfWnsbMx329m3WYKMtLxkQ4bE3rb"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
