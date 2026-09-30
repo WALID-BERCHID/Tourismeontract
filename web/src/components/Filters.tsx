@@ -18,7 +18,9 @@ export function CategoryBar({ onFilters, filterCount }: { onFilters: () => void;
     const el = scroller.current;
     if (el) setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
   };
-  useEffect(onScroll, [meta]);
+  useEffect(() => {
+    onScroll();
+  }, [meta]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = (id: string | null) => {
     const next = new URLSearchParams(params);

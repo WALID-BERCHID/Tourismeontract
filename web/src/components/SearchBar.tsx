@@ -119,7 +119,9 @@ export function SearchBar({ onDone, autoOpen }: { onDone?: () => void; autoOpen?
   const close = useCallback(() => setPanel(null), []);
   const ref = useClickOutside<HTMLDivElement>(close, panel !== null);
 
-  useEffect(() => setS(initial), [initial.location, initial.checkIn, initial.checkOut, initial.adults]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setS(initial);
+  }, [initial.location, initial.checkIn, initial.checkOut, initial.adults]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const go = () => {
     submit(s);

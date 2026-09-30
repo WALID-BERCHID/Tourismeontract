@@ -74,7 +74,9 @@ export default function Checkout() {
   const [editGuests, setEditGuests] = useState(false);
   const [booking, setBooking] = useState<Booking | null>(null);
 
-  useEffect(() => setAddress(null), [net?.chain]);
+  useEffect(() => {
+    setAddress(null);
+  }, [net?.chain]);
 
   const ciDay = checkIn ? toDay(checkIn) : 0;
   const coDay = checkOut ? toDay(checkOut) : 0;

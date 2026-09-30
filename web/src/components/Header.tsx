@@ -190,7 +190,9 @@ export default function Header() {
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
-  useEffect(() => setExpanded(null), [pathname]);
+  useEffect(() => {
+    setExpanded(null);
+  }, [pathname]);
 
   const big = (isHome && !scrolled) || expanded !== null;
   const hosting = pathname.startsWith("/hosting");
