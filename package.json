@@ -1,0 +1,24 @@
+{
+  "name": "tourismeontract",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Decentralized Airbnb-style tourism marketplace with multi-chain smart-contract escrow (EVM, Solana, EOSIO/Antelope)",
+  "workspaces": [
+    "contracts/evm",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "chain": "npm run node -w contracts/evm",
+    "deploy:local": "npm run deploy:local -w contracts/evm",
+    "server": "npm run dev -w server",
+    "web": "npm run dev -w web",
+    "dev": "concurrently -k -n chain,deploy,api,web -c yellow,magenta,cyan,green \"npm run chain\" \"wait-on tcp:8545 && npm run deploy:local\" \"wait-on tcp:8545 file:web/src/config/deployments.json && npm run server\" \"npm run web\"",
+    "test": "npm test -w contracts/evm && npm test -w server",
+    "build": "npm run build -w web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "wait-on": "^8.0.1"
+  }
+}

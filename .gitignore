@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.DS_Store
+
+# hardhat
+contracts/evm/artifacts/
+contracts/evm/cache/
+contracts/evm/typechain-types/
+contracts/evm/coverage/
+
+# solana / anchor
+contracts/solana/target/
+contracts/solana/.anchor/
+contracts/solana/test-ledger/
+
+# eosio
+contracts/eosio/build/
+
+# server runtime data
+server/data/*.db
+server/data/*.db-*
+server/uploads/*
+!server/uploads/.gitkeep
