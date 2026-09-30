@@ -11,7 +11,7 @@ import { useMeta, useTitle } from "../lib/hooks";
 import { POLICY_TEXT, dateRange, fromDay, nightsBetween, shortAddress, toDay, todayDay } from "../lib/format";
 import type { Booking, Listing, Network, Quote } from "../lib/types";
 import { balanceOf, connectWallet, errorMessage, fmtToken, pay, quote as cryptoQuote, type PayStep } from "../lib/payments";
-import { evmFaucet } from "../lib/chains/evm";
+import { evmFaucet, localEthFaucet } from "../lib/chains/evm";
 import DateRangePicker from "../components/DateRangePicker";
 import { ChainIcon } from "../components/icons";
 import { Alert, Button, Container, Counter, Divider, Img, Modal, PageLoader, Textarea } from "../components/ui";
@@ -331,12 +331,30 @@ export default function Checkout() {
                       <span className="flex items-center gap-2 text-amber-700">
                         <AlertTriangle className="h-4 w-4" /> Not enough {crypto?.symbol} for this payment.
                       </span>
+                      {Number(net.chainId) === 31337 && crypto?.symbol !== "USDC" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              await localEthFaucet(net, address!);
+                              toast.success("100 test ETH added to your wallet");
+                              refetchBalance();
+                            } catch (e) {
+                              toast.error(errorMessage(e));
+                            }
+                          }}
+                        >
+                          <Droplets className="h-4 w-4" /> Get test ETH
+                        </Button>
+                      )}
                       {net.testnet && crypto?.symbol === "USDC" && (
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={async () => {
                             try {
+                              if (Number(net.chainId) === 31337) await localEthFaucet(net, address!);
                               await evmFaucet(net);
                               toast.success("10,000 test USDC added");
                               refetchBalance();

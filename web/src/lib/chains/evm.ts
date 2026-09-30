@@ -236,3 +236,18 @@ export async function evmFaucet(net: Network) {
   const usdc = new Contract(net.usdc!, erc20Abi, signer);
   await (await usdc.faucet()).wait();
 }
+
+/** Local Hardhat chain only: top up any wallet with 100 test ETH (no transaction needed). */
+export async function localEthFaucet(net: Network, address: string) {
+  if (Number(net.chainId) !== 31337) throw new Error("Test ETH faucet is only available on the local network");
+  const res = await fetch(net.rpc, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "hardhat_setBalance", params: [address, "0x56BC75E2D63100000"] }),
+  });
+  const body = await res.json();
+  if (body.error) throw new Error(body.error.message);
+  // Mine a block so wallets and cached readers see the new balance right away.
+  await fetch(net.rpc, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "evm_mine", params: [] }) });
+  await new Promise((r) => setTimeout(r, 600));
+}
