@@ -34,7 +34,7 @@ export function CategoryBar({ onFilters, filterCount }: { onFilters: () => void;
     <div className="flex items-center gap-6">
       <div className="relative min-w-0 flex-1">
         {edges.left && (
-          <button type="button" aria-label="Scroll left" onClick={() => scroller.current?.scrollBy({ left: -400, behavior: "smooth" })} className="absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-ink-line bg-white shadow-sm hover:shadow-card">
+          <button type="button" aria-label="Scroll left" onClick={() => scroller.current?.scrollBy({ left: -400, behavior: "smooth" })} className="absolute left-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-ink-line bg-surface shadow-sm hover:shadow-card">
             <ChevronLeft className="h-4 w-4" />
           </button>
         )}
@@ -56,11 +56,11 @@ export function CategoryBar({ onFilters, filterCount }: { onFilters: () => void;
           })}
         </div>
         {edges.right && (
-          <button type="button" aria-label="Scroll right" onClick={() => scroller.current?.scrollBy({ left: 400, behavior: "smooth" })} className="absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-ink-line bg-white shadow-sm hover:shadow-card">
+          <button type="button" aria-label="Scroll right" onClick={() => scroller.current?.scrollBy({ left: 400, behavior: "smooth" })} className="absolute right-0 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-ink-line bg-surface shadow-sm hover:shadow-card">
             <ChevronRight className="h-4 w-4" />
           </button>
         )}
-        {edges.right && <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white" />}
+        {edges.right && <div className="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-canvas" />}
       </div>
       <button type="button" onClick={onFilters} className="relative hidden shrink-0 items-center gap-2 rounded-xl border border-ink-line px-4 py-3 text-xs font-semibold hover:border-ink hover:bg-ink-bg sm:flex">
         <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -124,7 +124,7 @@ export function FiltersModal({ open, onClose, total, priceRange }: { open: boole
       return { ...p, [key]: s };
     });
 
-  const chip = (on: boolean) => clsx("rounded-full border px-5 py-2.5 text-sm transition", on ? "border-ink bg-ink text-white" : "border-ink-line hover:border-ink");
+  const chip = (on: boolean) => clsx("rounded-full border px-5 py-2.5 text-sm transition", on ? "border-ink bg-ink text-canvas" : "border-ink-line hover:border-ink");
   const amenities = meta?.amenities || [];
 
   return (
@@ -146,21 +146,21 @@ export function FiltersModal({ open, onClose, total, priceRange }: { open: boole
     >
       <div className="divide-y divide-ink-faint px-6">
         <section className="py-8">
-          <h3 className="text-[22px] font-semibold">Type of place</h3>
+          <h3 className="font-display text-[22px] font-semibold">Type of place</h3>
           <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-2xl border border-ink-line text-sm font-medium">
             {[
               ["", "Any type"],
               ["entire", "Entire home"],
               ["private", "Room"],
             ].map(([v, label]) => (
-              <button key={v} type="button" onClick={() => setF({ ...f, roomType: v })} className={clsx("py-4 transition", f.roomType === v ? "bg-ink text-white" : "hover:bg-ink-bg")}>
+              <button key={v} type="button" onClick={() => setF({ ...f, roomType: v })} className={clsx("py-4 transition", f.roomType === v ? "bg-ink text-canvas" : "hover:bg-ink-bg")}>
                 {label}
               </button>
             ))}
           </div>
         </section>
         <section className="py-8">
-          <h3 className="text-[22px] font-semibold">Price range</h3>
+          <h3 className="font-display text-[22px] font-semibold">Price range</h3>
           <p className="text-sm text-ink-muted">Nightly prices before fees{priceRange ? ` · from ${fmt(priceRange.min, false)} to ${fmt(priceRange.max, false)}` : ""}</p>
           <div className="mt-5 flex items-center gap-4">
             <label className="flex-1 rounded-xl border border-ink-line px-4 py-2">
@@ -175,13 +175,13 @@ export function FiltersModal({ open, onClose, total, priceRange }: { open: boole
           </div>
         </section>
         <section className="py-6">
-          <h3 className="mb-2 text-[22px] font-semibold">Rooms and beds</h3>
+          <h3 className="mb-2 font-display text-[22px] font-semibold">Rooms and beds</h3>
           <Counter label="Bedrooms" value={f.bedrooms} onChange={(v) => setF({ ...f, bedrooms: v })} max={10} />
           <Counter label="Beds" value={f.beds} onChange={(v) => setF({ ...f, beds: v })} max={16} />
           <Counter label="Bathrooms" value={f.baths} onChange={(v) => setF({ ...f, baths: v })} max={8} />
         </section>
         <section className="py-8">
-          <h3 className="text-[22px] font-semibold">Amenities</h3>
+          <h3 className="font-display text-[22px] font-semibold">Amenities</h3>
           <div className="mt-5 flex flex-wrap gap-3">
             {(showAllAmenities ? amenities : amenities.slice(0, 12)).map((a) => {
               const Icon = amenityIcon(a.id);
@@ -199,7 +199,7 @@ export function FiltersModal({ open, onClose, total, priceRange }: { open: boole
           )}
         </section>
         <section className="py-8">
-          <h3 className="text-[22px] font-semibold">Property type</h3>
+          <h3 className="font-display text-[22px] font-semibold">Property type</h3>
           <div className="mt-5 flex flex-wrap gap-3">
             {meta?.propertyTypes.map((t) => (
               <button key={t} type="button" onClick={() => toggleSet("propertyTypes", t)} className={chip(f.propertyTypes.has(t))}>
@@ -209,7 +209,7 @@ export function FiltersModal({ open, onClose, total, priceRange }: { open: boole
           </div>
         </section>
         <section className="py-8">
-          <h3 className="text-[22px] font-semibold">Pay with</h3>
+          <h3 className="font-display text-[22px] font-semibold">Pay with</h3>
           <p className="text-sm text-ink-muted">Only show places accepting escrow payments on this network</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <button type="button" onClick={() => setF({ ...f, network: "" })} className={chip(!f.network)}>

@@ -24,6 +24,21 @@ export const CATEGORIES = [
   { id: "camping", label: "Camping", icon: "tent" },
 ];
 
+export const EXPERIENCE_CATEGORIES = [
+  { id: "food", label: "Food & drink", icon: "food" },
+  { id: "desert", label: "Desert", icon: "desert" },
+  { id: "culture", label: "Culture & history", icon: "landmark" },
+  { id: "water", label: "Water & surf", icon: "surf" },
+  { id: "adventure", label: "Adventure", icon: "mountain" },
+  { id: "wellness", label: "Wellness", icon: "wellness" },
+  { id: "photography", label: "Photography", icon: "camera" },
+  { id: "crafts", label: "Crafts & workshops", icon: "craft" },
+  { id: "nightlife", label: "Nightlife & music", icon: "music" },
+  { id: "nature", label: "Nature & wildlife", icon: "palm" },
+];
+
+export const EXPERIENCE_TYPES = ["Tour", "Workshop", "Cooking class", "Trek", "Day trip", "Surf lesson", "Food tour", "Photo walk", "Wellness session", "Private guide"];
+
 export const AMENITIES = [
   { id: "wifi", label: "Wifi", group: "Essentials" },
   { id: "kitchen", label: "Kitchen", group: "Essentials" },
@@ -64,6 +79,8 @@ meta.get("/meta", (_req, res) => {
   res.json({
     platformName: config.platformName,
     categories: CATEGORIES,
+    experienceCategories: EXPERIENCE_CATEGORIES,
+    experienceTypes: EXPERIENCE_TYPES,
     amenities: AMENITIES,
     propertyTypes: ["House", "Apartment", "Riad", "Villa", "Cabin", "Chalet", "Loft", "Townhouse", "Farmhouse", "Bungalow", "Cave house", "Tent", "Guesthouse", "Boutique hotel"],
     fees: { guestFeeBps: config.guestFeeBps, hostFeeBps: config.hostFeeBps },
@@ -182,7 +199,8 @@ meta.get("/admin/overview", requireAdmin, (req, res) => {
   const count = (sql) => get(sql).c;
   res.json({
     users: count(`SELECT COUNT(*) AS c FROM users`),
-    listings: count(`SELECT COUNT(*) AS c FROM listings WHERE status = 'published'`),
+    listings: count(`SELECT COUNT(*) AS c FROM listings WHERE status = 'published' AND kind = 'stay'`),
+    experiences: count(`SELECT COUNT(*) AS c FROM listings WHERE status = 'published' AND kind = 'experience'`),
     bookings: count(`SELECT COUNT(*) AS c FROM bookings`),
     gmvUsd: get(`SELECT COALESCE(SUM(total_usd), 0) AS c FROM bookings WHERE status IN ('confirmed','completed','resolved')`).c,
     disputes: all(`SELECT * FROM bookings WHERE status = 'disputed' ORDER BY updated_at DESC`).map((b) => serializeBooking(b, req.user.id)),

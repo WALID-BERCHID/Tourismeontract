@@ -36,7 +36,7 @@ export function bookingEmailData(b) {
 }
 
 export function serializeBooking(b, viewerId) {
-  const l = get(`SELECT id, title, city, country, photos, host_id, cancellation_policy, check_in_time, check_out_time, address, lat, lng FROM listings WHERE id = ?`, b.listing_id);
+  const l = get(`SELECT id, kind, duration_hours, title, city, country, photos, host_id, cancellation_policy, check_in_time, check_out_time, address, lat, lng FROM listings WHERE id = ?`, b.listing_id);
   const isGuest = viewerId === b.guest_id;
   const showAddress = ["confirmed", "completed", "disputed", "resolved"].includes(b.status);
   const review = get(`SELECT id, rating FROM reviews WHERE booking_id = ? AND target = 'listing'`, b.id);
@@ -73,6 +73,8 @@ export function serializeBooking(b, viewerId) {
     conversationId: conversation?.id || null,
     listing: {
       id: l.id,
+      kind: l.kind || "stay",
+      durationHours: l.duration_hours || 0,
       title: l.title,
       city: l.city,
       country: l.country,

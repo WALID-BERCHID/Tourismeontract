@@ -1,0 +1,221 @@
+{
+  "startedAt": "2026-10-06T10:07:44.353Z",
+  "network": "Hardhat local (chainId 31337)",
+  "accounts": {
+    "guest": {
+      "email": "guest@demo.tourisme.app",
+      "name": "Sara Traveler",
+      "wallet": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+      "role": "buyer / guest"
+    },
+    "youssef": {
+      "email": "youssef@demo.tourisme.app",
+      "name": "Youssef Benali",
+      "wallet": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "role": "seller / host"
+    },
+    "admin": {
+      "email": "admin@demo.tourisme.app",
+      "name": "Admin Tourisme",
+      "wallet": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      "role": "arbiter / admin"
+    }
+  },
+  "steps": [
+    {
+      "screenshot": "01-home-hero.png",
+      "caption": "Landing page: brand hero, escrow stats and the chains the escrow settles on."
+    },
+    {
+      "screenshot": "02-home-full.png",
+      "caption": "Full landing page: trending stays, featured experiences, how it works."
+    },
+    {
+      "screenshot": "03-search-results.png",
+      "caption": "Search: Marrakech, 3 nights, 2 guests – totals include all fees."
+    },
+    {
+      "screenshot": "04-search-map.png",
+      "caption": "Split map view with price pins; drag the map and 'search this area'."
+    },
+    {
+      "screenshot": "05-listing-page.png",
+      "caption": "Listing page: photos, amenities, calendar, reviews, host card and the escrow booking widget."
+    },
+    {
+      "screenshot": "06-experiences.png",
+      "caption": "Experiences & tours marketplace with category rail and single-date search."
+    },
+    {
+      "screenshot": "07-experience-page.png",
+      "caption": "Experience page: duration, group size, what's included, meeting point and the per-group escrow price."
+    },
+    {
+      "screenshot": "08-help-center.png",
+      "caption": "Help Center: escrow, who judges disputes, cancellation policies, fees, live contract addresses."
+    },
+    {
+      "screenshot": "09-trust-and-safety.png",
+      "caption": "Trust & Safety: what the escrow guarantees and who the arbiter is."
+    },
+    {
+      "screenshot": "10-terms.png",
+      "caption": "Terms of Service (plus Privacy, Cookies, Security and Contact pages)."
+    },
+    {
+      "screenshot": "11-login-modal.png",
+      "caption": "Sign in with email/password or a wallet signature (no gas)."
+    },
+    {
+      "screenshot": "12-guest-account-wallets.png",
+      "caption": "Buyer account (Sara): profile and the verified wallet used to pay."
+    },
+    {
+      "screenshot": "13-checkout-usdc.png",
+      "caption": "Checkout: network + token (USDC), wallet connected & verified, on-chain quote and price breakdown."
+    },
+    {
+      "screenshot": "14-checkout-processing.png",
+      "caption": "Approve USDC → confirm payment → block confirmation → server verifies the Booked event."
+    },
+    {
+      "screenshot": "15-booking-confirmed.png",
+      "caption": "Reservation confirmed – funds are now locked in the escrow contract."
+    },
+    {
+      "step": "Guest paid for stay",
+      "code": "HMMF4LZ8H9",
+      "listing": "Riad Yasmine – courtyard pool in the heart of the Medina",
+      "checkIn": "2026-10-16",
+      "checkOut": "2026-10-19",
+      "nights": 3,
+      "subtotalUsd": 900,
+      "guestFeeUsd": 72,
+      "totalUsd": 972,
+      "paid": "972 USDC",
+      "hostPayoutUsd": 873,
+      "txHash": "0xd2fdd059cabd80f1481e38729efdc5eb5e39844f98a74760c175ab1d8d66862e",
+      "chainBookingId": "1",
+      "quote": "You pay\n972 USDC"
+    },
+    {
+      "screenshot": "16-trip-detail.png",
+      "caption": "Trip page: escrow status, transaction hash, address revealed, cancel/release/report actions."
+    },
+    {
+      "screenshot": "17-trips.png",
+      "caption": "Trips: upcoming / past / cancelled."
+    },
+    {
+      "screenshot": "18-checkout-experience-eth.png",
+      "caption": "Booking an experience for one date, paid in ETH."
+    },
+    {
+      "step": "Guest paid for experience",
+      "code": "HMHULH2FLC",
+      "listing": "Golden-hour photo walk through the Blue City",
+      "date": "2026-10-06",
+      "totalUsd": 129.6,
+      "paid": "0.0432 ETH",
+      "txHash": "0x230f78c8d7f9862e4d6dafaf9672e75e248f1b0e852f2f5d9989ff016d0312ec",
+      "status": "confirmed"
+    },
+    {
+      "screenshot": "19-report-problem.png",
+      "caption": "Guest reports a problem → payout frozen on-chain until the arbiter decides."
+    },
+    {
+      "screenshot": "20-trip-disputed.png",
+      "caption": "The booking is now 'Disputed'; the host cannot withdraw."
+    },
+    {
+      "step": "Guest opened dispute",
+      "code": "HMHULH2FLC"
+    },
+    {
+      "screenshot": "21-messages.png",
+      "caption": "Inbox: every booking gets a conversation with system messages for each escrow event."
+    },
+    {
+      "step": "Guest ETH balance",
+      "before": "10000.0",
+      "after": "9999.956098461705383588"
+    },
+    {
+      "screenshot": "22-host-dashboard.png",
+      "caption": "Host dashboard (Youssef): today, requests, upcoming reservations."
+    },
+    {
+      "screenshot": "23-host-reservations.png",
+      "caption": "Reservations table with escrow status and payout per booking."
+    },
+    {
+      "screenshot": "24-host-reservation-detail.png",
+      "caption": "Host view of Sara's booking: guest, dates, amount locked, actions."
+    },
+    {
+      "screenshot": "25-host-earnings.png",
+      "caption": "Earnings: monthly chart, pending vs released, withdraw from escrow to wallet."
+    },
+    {
+      "screenshot": "26-host-listings.png",
+      "caption": "Host's stays and experiences; publish state and enabled chains."
+    },
+    {
+      "screenshot": "27-host-enable-payments.png",
+      "caption": "Enable payments per network: creates the listing + prices in the escrow contract."
+    },
+    {
+      "screenshot": "28-host-new-experience.png",
+      "caption": "Experience wizard: type, category, meeting point, group & duration, inclusions, price."
+    },
+    {
+      "step": "Host wallet",
+      "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "eth": "9999.999722574639633148"
+    },
+    {
+      "screenshot": "29-admin-disputes.png",
+      "caption": "Admin / arbiter: platform stats and open disputes with a refund slider."
+    },
+    {
+      "screenshot": "30-admin-resolved.png",
+      "caption": "Dispute resolved on-chain: 100% refunded to the guest."
+    },
+    {
+      "step": "Arbiter resolved dispute",
+      "code": "HMHULH2FLC",
+      "refundPercent": 100
+    },
+    {
+      "screenshot": "31-trip-refunded.png",
+      "caption": "Guest's trip after resolution: status 'Resolved', refund withdrawable from the contract."
+    },
+    {
+      "screenshot": "32-mobile-home.png",
+      "caption": "Mobile: full-screen search and bottom tab bar."
+    },
+    {
+      "screenshot": "33-mobile-listing.png",
+      "caption": "Mobile listing with sticky reserve bar."
+    },
+    {
+      "screenshot": "34-mobile-experiences.png",
+      "caption": "Mobile experiences."
+    },
+    {
+      "screenshot": "35-mobile-trips.png",
+      "caption": "Mobile trips."
+    }
+  ],
+  "contracts": {
+    "escrow": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+    "usdc": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+  },
+  "experienceId": 21,
+  "escrowBalances": {
+    "eth": "0.0432",
+    "usdc": "972.0"
+  },
+  "finishedAt": "2026-10-06T10:10:00.886Z"
+}

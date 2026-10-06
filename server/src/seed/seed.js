@@ -8,6 +8,7 @@ import { bookingCode, todayDay } from "../util.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LISTINGS = JSON.parse(fs.readFileSync(path.join(__dirname, "listings.json"), "utf8"));
+const EXPERIENCES = JSON.parse(fs.readFileSync(path.join(__dirname, "experiences.json"), "utf8"));
 
 // Hardhat's well-known development accounts (never use these keys on a real network).
 const HARDHAT = [
@@ -96,51 +97,59 @@ export function seedDemo({ reset = false } = {}) {
 
     const rand = rng(42);
     const today = todayDay();
-    LISTINGS.forEach((l, idx) => {
+    const ALL = [...LISTINGS.map((l) => ({ ...l, kind: "stay" })), ...EXPERIENCES.map((l) => ({ ...l, kind: "experience" }))];
+    ALL.forEach((l, idx) => {
+      const exp = l.kind === "experience";
       const listingId = run(
-        `INSERT INTO listings (slug, host_id, title, property_type, room_type, category, description, city, region, country, neighborhood, address,
+        `INSERT INTO listings (slug, kind, host_id, title, property_type, room_type, category, description, city, region, country, neighborhood, address,
           lat, lng, guests, bedrooms, beds, baths, amenities, photos, house_rules, price_usd, cleaning_fee_usd, cancellation_policy,
-          min_nights, max_nights, instant_book, check_in_time, check_out_time, status, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published', datetime('now', ?))`,
+          min_nights, max_nights, instant_book, check_in_time, check_out_time, duration_hours, start_time, meeting_point, languages, includes, status, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published', datetime('now', ?))`,
         l.slug,
+        l.kind,
         hostIds[l.hostIndex],
         l.title,
         l.propertyType,
-        l.roomType,
+        l.roomType || "entire",
         l.category,
         l.description,
         l.city,
         l.region,
         l.country,
         l.neighborhood,
-        `${l.neighborhood.split(",")[0]}, ${l.city}, ${l.country}`,
+        exp ? l.meetingPoint : `${l.neighborhood.split(",")[0]}, ${l.city}, ${l.country}`,
         l.lat,
         l.lng,
         l.guests,
-        l.bedrooms,
-        l.beds,
-        l.baths,
-        JSON.stringify(l.amenities),
+        l.bedrooms || 0,
+        l.beds || 0,
+        l.baths || 0,
+        JSON.stringify(l.amenities || []),
         JSON.stringify(l.photos),
-        JSON.stringify(l.houseRules),
+        JSON.stringify(l.houseRules || []),
         l.priceUsd,
-        l.cleaningFeeUsd,
+        l.cleaningFeeUsd || 0,
         l.cancellationPolicy,
-        l.minNights,
-        l.maxNights,
+        exp ? 1 : l.minNights,
+        exp ? 1 : l.maxNights,
         l.instantBook ? 1 : 0,
-        l.checkInTime,
-        l.checkOutTime,
-        `-${LISTINGS.length - idx} days`
+        exp ? l.startTime : l.checkInTime,
+        exp ? "" : l.checkOutTime,
+        l.durationHours || 0,
+        l.startTime || "",
+        l.meetingPoint || "",
+        JSON.stringify(l.languages || []),
+        JSON.stringify(l.includes || []),
+        `-${ALL.length - idx} days`
       ).lastInsertRowid;
 
       // Past stays with reviews (historical, off-chain records).
       const n = idx % 5 === 4 ? 0 : 2 + Math.floor(rand() * 5);
       for (let i = 0; i < n; i++) {
         const reviewer = reviewerIds[(idx + i) % reviewerIds.length];
-        const nights = Math.max(l.minNights, 2 + Math.floor(rand() * 4));
+        const nights = exp ? 1 : Math.max(l.minNights, 2 + Math.floor(rand() * 4));
         const checkIn = today - 30 - Math.floor(rand() * 300);
-        const subtotal = l.priceUsd * nights + l.cleaningFeeUsd;
+        const subtotal = l.priceUsd * nights + (l.cleaningFeeUsd || 0);
         const bookingId = run(
           `INSERT INTO bookings (code, listing_id, guest_id, host_id, chain, network, currency, amount_native, check_in, check_out, guests, nights,
              subtotal_usd, fee_usd, total_usd, status, created_at)
@@ -180,7 +189,7 @@ export function seedDemo({ reset = false } = {}) {
       }
     });
   });
-  console.log(`[seed] demo data created (${LISTINGS.length} listings). Demo logins use password "tourisme123".`);
+  console.log(`[seed] demo data created (${LISTINGS.length} stays, ${EXPERIENCES.length} experiences). Demo logins use password "tourisme123".`);
   return true;
 }
 

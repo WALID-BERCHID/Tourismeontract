@@ -40,9 +40,12 @@ export interface ListingChain {
   name?: string;
 }
 
+export type ListingKind = "stay" | "experience";
+
 export interface Listing {
   id: number;
   slug: string;
+  kind: ListingKind;
   title: string;
   propertyType: string;
   roomType: "entire" | "private" | "shared";
@@ -68,6 +71,12 @@ export interface Listing {
   isNew: boolean;
   wishlisted: boolean;
   totalUsd?: number | null;
+  // experiences
+  durationHours: number;
+  startTime: string;
+  languages: string[];
+  meetingPoint?: string;
+  includes?: string[];
   // full
   description?: string;
   neighborhood?: string;
@@ -145,6 +154,8 @@ export interface Booking {
   bucket?: "upcoming" | "current" | "past" | "cancelled";
   listing: {
     id: number;
+    kind: ListingKind;
+    durationHours: number;
     title: string;
     city: string;
     country: string;
@@ -179,6 +190,8 @@ export interface Network {
 export interface Meta {
   platformName: string;
   categories: { id: string; label: string; icon: string }[];
+  experienceCategories: { id: string; label: string; icon: string }[];
+  experienceTypes: string[];
   amenities: { id: string; label: string; group: string }[];
   propertyTypes: string[];
   fees: { guestFeeBps: number; hostFeeBps: number };

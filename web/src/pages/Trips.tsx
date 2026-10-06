@@ -30,7 +30,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
 function TripCard({ b }: { b: Booking }) {
   return (
-    <Link to={`/trips/${b.id}`} className="group flex gap-4 rounded-2xl border border-ink-faint p-3 transition hover:shadow-card">
+    <Link to={`/trips/${b.id}`} className="group flex gap-4 glass rounded-3xl p-3 transition hover:shadow-card">
       <Img src={b.listing.photo} alt={b.listing.title} seed={b.listing.id} className="h-24 w-24 shrink-0 rounded-xl sm:h-28 sm:w-28" />
       <div className="min-w-0 flex-1 py-1">
         <div className="flex items-start justify-between gap-2">
@@ -76,12 +76,12 @@ function TripsList() {
 
   return (
     <Container className="pb-24 pt-10">
-      <h1 className="mb-8 text-[32px] font-semibold">Trips</h1>
+      <h1 className="mb-8 font-display text-[32px] font-semibold">Trips</h1>
       {current && (
-        <Link to={`/trips/${current.id}`} className="mb-10 flex flex-col overflow-hidden rounded-3xl shadow-card sm:flex-row">
+        <Link to={`/trips/${current.id}`} className="mb-10 flex flex-col glass overflow-hidden rounded-3xl sm:flex-row">
           <Img src={current.listing.photo} alt="" seed={current.listing.id} className="h-56 w-full sm:h-auto sm:w-2/5" />
           <div className="flex-1 p-8">
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Happening now</span>
+            <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">Happening now</span>
             <h2 className="mt-3 text-2xl font-semibold">{current.listing.city}</h2>
             <p className="text-ink-muted">{current.listing.title}</p>
             <p className="mt-4">
@@ -117,7 +117,7 @@ function TripsList() {
           />
           {tab === "upcoming" && ideas && (
             <>
-              <h2 className="mb-6 mt-14 text-[22px] font-semibold">Inspiration for your next trip</h2>
+              <h2 className="mb-6 mt-14 font-display text-[22px] font-semibold">Inspiration for your next trip</h2>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {ideas.results.map((l) => (
                   <ListingCard key={l.id} listing={l} />

@@ -6,13 +6,14 @@ import { notify } from "../notify.js";
 import { parseNetwork, networkLabel } from "../chains/index.js";
 import { escrowContract, readEvmCalendar } from "../chains/evm.js";
 import { occupiedDays } from "../services/bookings.js";
-import { HttpError, asyncHandler, dayFromDate, parse, priceQuote, publicUser, serializeListing, slugify, todayDay } from "../util.js";
+import { HttpError, asyncHandler, dateFromDay, dayFromDate, parse, priceQuote, publicUser, serializeListing, slugify, todayDay } from "../util.js";
 
 const router = Router();
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD");
 
 const listingSchema = z.object({
+  kind: z.enum(["stay", "experience"]).default("stay"),
   title: z.string().trim().min(10, "At least 10 characters").max(100),
   propertyType: z.string().trim().min(2).max(40),
   roomType: z.enum(["entire", "private", "shared"]),
@@ -27,7 +28,7 @@ const listingSchema = z.object({
   lng: z.number().min(-180).max(180),
   guests: z.number().int().min(1).max(50),
   bedrooms: z.number().int().min(0).max(50),
-  beds: z.number().int().min(1).max(100),
+  beds: z.number().int().min(0).max(100),
   baths: z.number().min(0).max(50),
   amenities: z.array(z.string().max(40)).max(80).default([]),
   photos: z.array(z.string().max(500)).min(1, "Add at least one photo").max(40),
@@ -41,9 +42,27 @@ const listingSchema = z.object({
   checkInTime: z.string().regex(/^\d{2}:\d{2}$/).default("15:00"),
   checkOutTime: z.string().regex(/^\d{2}:\d{2}$/).default("11:00"),
   status: z.enum(["draft", "published", "unlisted"]).default("draft"),
+  // Experiences & tours
+  durationHours: z.number().min(0).max(240).default(0),
+  startTime: z.string().regex(/^(\d{2}:\d{2})?$/).default(""),
+  meetingPoint: z.string().trim().max(300).default(""),
+  languages: z.array(z.string().max(40)).max(10).default([]),
+  includes: z.array(z.string().max(120)).max(30).default([]),
 });
 
+/** Experiences are single-day escrow bookings priced per private group. */
+function normalizeKind(body, current) {
+  const kind = body.kind ?? current?.kind ?? "stay";
+  if (kind === "experience") {
+    body.minNights = 1;
+    body.maxNights = 1;
+    if (body.roomType === undefined && !current) body.roomType = "entire";
+  }
+  return body;
+}
+
 const COLUMNS = {
+  kind: "kind",
   title: "title",
   propertyType: "property_type",
   roomType: "room_type",
@@ -68,8 +87,11 @@ const COLUMNS = {
   checkInTime: "check_in_time",
   checkOutTime: "check_out_time",
   status: "status",
+  durationHours: "duration_hours",
+  startTime: "start_time",
+  meetingPoint: "meeting_point",
 };
-const JSON_COLUMNS = { amenities: "amenities", photos: "photos", houseRules: "house_rules" };
+const JSON_COLUMNS = { amenities: "amenities", photos: "photos", houseRules: "house_rules", languages: "languages", includes: "includes" };
 
 function toRow(body) {
   const row = {};
@@ -93,7 +115,9 @@ function ownListing(req) {
 router.get("/", optionalAuth, (req, res) => {
   const q = parse(
     z.object({
+      kind: z.enum(["stay", "experience"]).default("stay"),
       location: z.string().trim().max(100).optional(),
+      date: isoDate.optional(),
       checkIn: isoDate.optional(),
       checkOut: isoDate.optional(),
       guests: z.coerce.number().int().min(1).max(50).optional(),
@@ -116,8 +140,12 @@ router.get("/", optionalAuth, (req, res) => {
     req.query
   );
 
-  const where = [`l.status = 'published'`];
-  const params = [];
+  const where = [`l.status = 'published'`, `l.kind = ?`];
+  const params = [q.kind];
+  if (q.kind === "experience" && q.date && !q.checkIn) {
+    q.checkIn = q.date;
+    q.checkOut = dateFromDay(dayFromDate(q.date) + 1);
+  }
   if (q.location) {
     const terms = q.location.split(",").map((t) => t.trim()).filter(Boolean);
     for (const t of terms.slice(0, 2)) {
@@ -195,16 +223,18 @@ router.get("/", optionalAuth, (req, res) => {
 
 router.get("/suggestions", (req, res) => {
   const q = String(req.query.q || "").trim();
+  const kind = req.query.kind === "experience" ? "experience" : "stay";
   const rows = q
     ? all(
-        `SELECT city, region, country, COUNT(*) AS n FROM listings WHERE status = 'published' AND (city LIKE ? OR country LIKE ? OR region LIKE ?)
+        `SELECT city, region, country, COUNT(*) AS n FROM listings WHERE status = 'published' AND kind = ? AND (city LIKE ? OR country LIKE ? OR region LIKE ?)
          GROUP BY city, country ORDER BY (city LIKE ?) DESC, n DESC, city LIMIT 8`,
+        kind,
         `${q}%`,
         `${q}%`,
         `${q}%`,
         `${q}%`
       )
-    : all(`SELECT city, region, country, COUNT(*) AS n FROM listings WHERE status = 'published' GROUP BY city, country ORDER BY n DESC, city LIMIT 8`);
+    : all(`SELECT city, region, country, COUNT(*) AS n FROM listings WHERE status = 'published' AND kind = ? GROUP BY city, country ORDER BY n DESC, city LIMIT 8`, kind);
   res.json(rows.map((r) => ({ label: `${r.city}, ${r.country}`, city: r.city, region: r.region, country: r.country, count: r.n })));
 });
 
@@ -306,7 +336,7 @@ router.get("/:id/quote", optionalAuth, (req, res) => {
 // ---------------------------------------------------------------------------
 
 router.post("/", requireAuth, (req, res) => {
-  const body = parse(listingSchema, req.body);
+  const body = normalizeKind(parse(listingSchema, req.body));
   if (body.maxNights < body.minNights) throw new HttpError(400, "Please check the highlighted fields", { maxNights: "Must be ≥ minimum nights" });
   const row = toRow(body);
   row.slug = slugify(`${body.title} ${body.city}`);
@@ -322,7 +352,7 @@ router.post("/", requireAuth, (req, res) => {
 
 router.patch("/:id", requireAuth, (req, res) => {
   const l = ownListing(req);
-  const body = parse(listingSchema.partial(), req.body);
+  const body = normalizeKind(parse(listingSchema.partial(), req.body), l);
   const row = toRow(body);
   const min = body.minNights ?? l.min_nights;
   const max = body.maxNights ?? l.max_nights;

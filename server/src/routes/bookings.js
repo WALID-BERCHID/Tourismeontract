@@ -59,6 +59,7 @@ router.post(
 
     const checkIn = dayFromDate(body.checkIn);
     const checkOut = dayFromDate(body.checkOut);
+    if (l.kind === "experience" && checkOut !== checkIn + 1) throw new HttpError(400, "Experiences are booked for a single date");
     const onChain = await verifyBooking(body.network, {
       txHash: body.txHash,
       guestAddress: body.payerAddress,

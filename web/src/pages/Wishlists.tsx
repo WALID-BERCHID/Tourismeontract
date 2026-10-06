@@ -14,7 +14,7 @@ function List() {
   const listings = data?.listings || [];
   return (
     <Container wide className="pb-24 pt-10">
-      <h1 className="mb-8 text-[32px] font-semibold">Wishlists</h1>
+      <h1 className="mb-8 font-display text-[32px] font-semibold">Wishlists</h1>
       {listings.length === 0 ? (
         <EmptyState
           icon={<Heart className="h-10 w-10" strokeWidth={1.4} />}

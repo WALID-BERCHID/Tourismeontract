@@ -39,7 +39,7 @@ interface ListingResponse {
 
 const ROOM_LABEL = { entire: "Entire", private: "Room in", shared: "Shared room in" } as const;
 
-function Gallery({ listing, open, onClose, start = 0 }: { listing: Listing; open: boolean; onClose: () => void; start?: number }) {
+export function Gallery({ listing, open, onClose, start = 0 }: { listing: Listing; open: boolean; onClose: () => void; start?: number }) {
   return (
     <Modal open={open} onClose={onClose} size="full" title="Photo tour">
       <div className="mx-auto max-w-3xl space-y-3 p-4 sm:p-8">
@@ -51,7 +51,7 @@ function Gallery({ listing, open, onClose, start = 0 }: { listing: Listing; open
   );
 }
 
-function ReviewCard({ r, clamp = true }: { r: Review; clamp?: boolean }) {
+export function ReviewCard({ r, clamp = true }: { r: Review; clamp?: boolean }) {
   return (
     <div>
       <div className="flex items-center gap-3">
@@ -68,14 +68,14 @@ function ReviewCard({ r, clamp = true }: { r: Review; clamp?: boolean }) {
           ))}
         </span>
         <span className="font-semibold">· {monthYear(r.createdAt)}</span>
-        {r.txHash && <span className="rounded bg-emerald-50 px-1.5 text-emerald-700">on-chain</span>}
+        {r.txHash && <span className="rounded bg-emerald-500/15 px-1.5 text-emerald-300">on-chain</span>}
       </div>
       <p className={clsx("mt-2 leading-relaxed", clamp && "line-clamp-4")}>{r.comment}</p>
     </div>
   );
 }
 
-function RatingSummary({ listing }: { listing: Listing }) {
+export function RatingSummary({ listing }: { listing: Listing }) {
   const cats: [string, string][] = [
     ["cleanliness", "Cleanliness"],
     ["accuracy", "Accuracy"],
@@ -96,7 +96,7 @@ function RatingSummary({ listing }: { listing: Listing }) {
   );
 }
 
-function ContactHost({ listing, host }: { listing: Listing; host: User }) {
+export function ContactHost({ listing, host }: { listing: Listing; host: User }) {
   const [open, setOpen] = useState(false);
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
@@ -179,16 +179,16 @@ function BookingCard({
   const isOwner = user?.id === listing.hostId;
 
   return (
-    <div ref={ref} className="rounded-xl border border-ink-line p-6 shadow-card">
+    <div ref={ref} className="glass-strong border-gradient relative rounded-3xl p-6 shadow-card">
       <div className="mb-6 flex items-baseline justify-between">
         <div>
           {nights && quote?.quote ? (
             <>
-              <span className="text-[22px] font-semibold">{fmt(quote.quote.total, false)}</span> <span className="text-ink-muted">for {nights} night{nights > 1 ? "s" : ""}</span>
+              <span className="font-display text-[22px] font-semibold">{fmt(quote.quote.total, false)}</span> <span className="text-ink-muted">for {nights} night{nights > 1 ? "s" : ""}</span>
             </>
           ) : (
             <>
-              <span className="text-[22px] font-semibold">{fmt(listing.priceUsd, false)}</span> <span>night</span>
+              <span className="font-display text-[22px] font-semibold">{fmt(listing.priceUsd, false)}</span> <span>night</span>
             </>
           )}
         </div>
@@ -223,10 +223,10 @@ function BookingCard({
         </button>
 
         {panel === "dates" && (
-          <div className="absolute -right-6 -top-6 z-30 w-[680px] animate-fade-in rounded-2xl bg-white p-8 shadow-pop">
+          <div className="absolute -right-6 -top-6 z-30 w-[680px] animate-fade-in rounded-2xl bg-surface p-8 shadow-pop">
             <div className="mb-6 flex items-start justify-between">
               <div>
-                <h3 className="text-[22px] font-semibold">{nights ? `${nights} night${nights > 1 ? "s" : ""}` : "Select dates"}</h3>
+                <h3 className="font-display text-[22px] font-semibold">{nights ? `${nights} night${nights > 1 ? "s" : ""}` : "Select dates"}</h3>
                 <p className="text-sm text-ink-muted">
                   {checkIn && checkOut ? `${shortDate(checkIn, true)} – ${shortDate(checkOut, true)}` : `Minimum stay: ${listing.minNights} night${listing.minNights! > 1 ? "s" : ""}`}
                 </p>
@@ -244,7 +244,7 @@ function BookingCard({
           </div>
         )}
         {panel === "guests" && (
-          <div className="absolute left-0 right-0 top-full z-30 mt-1 animate-fade-in rounded-xl bg-white px-4 shadow-pop">
+          <div className="absolute left-0 right-0 top-full z-30 mt-1 animate-fade-in rounded-xl bg-surface px-4 shadow-pop">
             <Counter label="Adults" sub="Age 13+" value={guests.adults || 1} min={1} max={listing.guests - guests.children} onChange={(v) => setGuests({ adults: v })} />
             <Counter label="Children" sub="Ages 2–12" value={guests.children} max={listing.guests - (guests.adults || 1)} onChange={(v) => setGuests({ children: v })} />
             <Counter label="Infants" sub="Under 2" value={guests.infants} max={5} onChange={(v) => setGuests({ infants: v })} />
@@ -254,7 +254,7 @@ function BookingCard({
         )}
       </div>
 
-      {quote && !quote.available && checkIn && checkOut && <p className="mt-3 text-sm text-red-600">{quote.error}</p>}
+      {quote && !quote.available && checkIn && checkOut && <p className="mt-3 text-sm text-red-400">{quote.error}</p>}
       <Button full size="lg" className="mt-4" onClick={reserve} disabled={isOwner || (!!quote && !quote.available)}>
         {isOwner ? "This is your listing" : !checkIn || !checkOut ? "Check availability" : listing.instantBook ? "Reserve" : "Request to book"}
       </Button>
@@ -287,7 +287,7 @@ function BookingCard({
         </>
       )}
       <div className="mt-5 flex items-center justify-center gap-2 text-xs text-ink-muted">
-        <ShieldCheck className="h-4 w-4 text-emerald-600" /> Paid into escrow · released 24h after check-in
+        <ShieldCheck className="h-4 w-4 text-emerald-400" /> Paid into escrow · released 24h after check-in
       </div>
     </div>
   );
@@ -387,7 +387,7 @@ export default function ListingPage() {
               <Img src={p} alt={`${listing.title} photo ${i + 1}`} seed={listing.id + i} className="h-full w-full transition duration-300 group-hover:brightness-90" />
             </button>
           ))}
-          <button type="button" onClick={() => setGallery(0)} className="absolute bottom-6 right-6 flex items-center gap-2 rounded-lg border border-ink bg-white px-4 py-1.5 text-sm font-semibold shadow-sm hover:bg-ink-bg">
+          <button type="button" onClick={() => setGallery(0)} className="absolute bottom-6 right-6 flex items-center gap-2 rounded-lg border border-ink bg-surface px-4 py-1.5 text-sm font-semibold shadow-sm hover:bg-ink-bg">
             <Grid3x3 className="h-4 w-4" /> Show all photos
           </button>
         </div>
@@ -396,7 +396,7 @@ export default function ListingPage() {
         <div className="mt-8 grid gap-16 md:grid-cols-[1fr_minmax(0,370px)] lg:gap-24">
           <div className="min-w-0">
             <section className="pb-8">
-              <h2 className="text-[22px] font-semibold">
+              <h2 className="font-display text-[22px] font-semibold">
                 {ROOM_LABEL[listing.roomType]} {listing.propertyType.toLowerCase()} in {listing.city}, {listing.country}
               </h2>
               <p className="text-ink-soft">
@@ -441,7 +441,7 @@ export default function ListingPage() {
             <section className="flex items-center gap-4 py-6">
               <Link to={`/users/${host.id}`} className="relative">
                 <Avatar src={host.avatarUrl} name={host.firstName} size={40} />
-                {host.isSuperhost && <Medal className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white p-0.5 text-brand" />}
+                {host.isSuperhost && <Medal className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-surface p-0.5 text-brand" />}
               </Link>
               <div>
                 <div className="font-semibold">Hosted by {host.firstName}</div>
@@ -504,7 +504,7 @@ export default function ListingPage() {
             </section>
             <Divider />
             <section className="py-10">
-              <h2 className="mb-6 text-[22px] font-semibold">What this place offers</h2>
+              <h2 className="mb-6 font-display text-[22px] font-semibold">What this place offers</h2>
               <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
                 {listing.amenities?.slice(0, 10).map((a) => {
                   const Icon = amenityIcon(a);
@@ -523,7 +523,7 @@ export default function ListingPage() {
             </section>
             <Divider />
             <section className="py-10">
-              <h2 className="text-[22px] font-semibold">{nights ? `${nights} night${nights > 1 ? "s" : ""} in ${listing.city}` : "Select check-in date"}</h2>
+              <h2 className="font-display text-[22px] font-semibold">{nights ? `${nights} night${nights > 1 ? "s" : ""} in ${listing.city}` : "Select check-in date"}</h2>
               <p className="mb-6 text-sm text-ink-muted">
                 {checkIn && checkOut ? `${shortDate(checkIn, true)} – ${shortDate(checkOut, true)}` : `Add your travel dates for exact pricing · ${listing.minNights}-night minimum`}
               </p>
@@ -539,7 +539,7 @@ export default function ListingPage() {
             <div className="sticky top-28">
               <BookingCard listing={listing} occupied={occupied} checkIn={datesValid ? checkIn : null} checkOut={datesValid ? checkOut : null} setDates={setDates} guests={guests} setGuests={setGuests} />
               {data.networks.length > 0 && (
-                <div className="mt-6 rounded-xl border border-ink-line p-5 text-sm">
+                <div className="mt-6 glass rounded-2xl p-5 text-sm">
                   <div className="mb-3 font-semibold">Pay with crypto escrow on</div>
                   <div className="flex flex-wrap gap-2">
                     {data.networks.map((n) => (
@@ -559,7 +559,7 @@ export default function ListingPage() {
         <section className="py-12">
           {listing.reviewCount > 0 ? (
             <>
-              <h2 className="mb-8 flex items-center gap-2 text-[22px] font-semibold">
+              <h2 className="mb-8 flex items-center gap-2 font-display text-[22px] font-semibold">
                 <Star className="h-5 w-5 fill-current" /> {listing.rating?.toFixed(2)} · {listing.reviewCount} review{listing.reviewCount > 1 ? "s" : ""}
               </h2>
               <RatingSummary listing={listing} />
@@ -575,14 +575,14 @@ export default function ListingPage() {
               )}
             </>
           ) : (
-            <h2 className="flex items-center gap-2 text-[22px] font-semibold">
+            <h2 className="flex items-center gap-2 font-display text-[22px] font-semibold">
               <Star className="h-5 w-5 fill-current" /> No reviews (yet)
             </h2>
           )}
         </section>
         <Divider />
         <section className="py-12">
-          <h2 className="mb-2 text-[22px] font-semibold">Where you'll be</h2>
+          <h2 className="mb-2 font-display text-[22px] font-semibold">Where you'll be</h2>
           <p className="mb-6 text-ink-soft">
             {listing.neighborhood ? `${listing.neighborhood} · ` : ""}
             {listing.city}, {listing.region ? `${listing.region}, ` : ""}
@@ -595,9 +595,9 @@ export default function ListingPage() {
         </section>
         <Divider />
         <section className="py-12">
-          <h2 className="mb-8 text-[22px] font-semibold">Meet your host</h2>
+          <h2 className="mb-8 font-display text-[22px] font-semibold">Meet your host</h2>
           <div className="grid gap-12 md:grid-cols-[380px_1fr]">
-            <Link to={`/users/${host.id}`} className="grid grid-cols-[1fr_120px] items-center rounded-3xl p-8 shadow-card">
+            <Link to={`/users/${host.id}`} className="grid grid-cols-[1fr_120px] items-center glass rounded-3xl p-8">
               <div className="flex flex-col items-center text-center">
                 <span className="relative">
                   <Avatar src={host.avatarUrl} name={host.firstName} size={104} />
@@ -670,7 +670,7 @@ export default function ListingPage() {
       </Container>
 
       {/* Mobile reserve bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between border-t border-ink-faint bg-white px-6 py-4 md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between border-t border-ink-faint bg-surface px-6 py-4 md:hidden">
         <div>
           <div>
             <span className="font-semibold">{fmt(listing.priceUsd, false)}</span> night

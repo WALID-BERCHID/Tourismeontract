@@ -36,10 +36,19 @@ import {
   Wind,
   Baby,
   ArrowUpDown,
+  Camera,
+  Flower2,
+  Hammer,
+  Music,
   type LucideIcon,
 } from "lucide-react";
 
 export const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  food: Utensils,
+  wellness: Flower2,
+  camera: Camera,
+  craft: Hammer,
+  music: Music,
   riad: Castle,
   beach: Palmtree,
   landmark: Landmark,
@@ -92,15 +101,30 @@ export const AMENITY_ICONS: Record<string, LucideIcon> = {
 
 export const amenityIcon = (id: string) => AMENITY_ICONS[id] || Sparkles;
 
-/** Brand mark: a stylised pin/arch that reads well at small sizes. */
+/** Brand mark: a hexagonal "portal" with a gradient core – reads as a key/token at any size. */
 export function Logo({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M16 2c-1.9 0-3.3 1.2-4.3 3.4L4.8 20.5c-2.2 4.7.4 9.5 5 9.5 2.6 0 4.6-1.5 6.2-3.6 1.6 2.1 3.6 3.6 6.2 3.6 4.6 0 7.2-4.8 5-9.5L20.3 5.4C19.3 3.2 17.9 2 16 2zm0 22.7c-1.7-2.1-2.8-4.2-2.8-6 0-1.7 1.2-2.8 2.8-2.8s2.8 1.1 2.8 2.8c0 1.8-1.1 3.9-2.8 6z"
-      />
+      <defs>
+        <linearGradient id="tourisme-logo" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#F23B9E" />
+          <stop offset=".6" stopColor="#8B5CF6" />
+          <stop offset="1" stopColor="#3DF5A8" />
+        </linearGradient>
+      </defs>
+      <path d="M16 2.5 28 9.25v13.5L16 29.5 4 22.75V9.25z" fill="none" stroke="url(#tourisme-logo)" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M16 8.5 22.5 12.2v7.6L16 23.5l-6.5-3.7v-7.6z" fill="url(#tourisme-logo)" />
+      <circle cx="16" cy="16" r="2.4" fill="#0A0920" />
     </svg>
+  );
+}
+
+/** Wordmark with the gradient accent used across the brand. */
+export function Wordmark({ className = "" }: { className?: string }) {
+  return (
+    <span className={`font-display text-[22px] font-extrabold tracking-tight text-ink ${className}`}>
+      touris<span className="text-gradient-brand">me</span>
+    </span>
   );
 }
 

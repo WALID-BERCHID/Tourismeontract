@@ -15,7 +15,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, { 
         <h1 style={{ fontSize: 28, marginBottom: 12 }}>Something went wrong</h1>
         <p style={{ color: "#717171", marginBottom: 16 }}>Please reload the page. If it keeps happening, share this message with support:</p>
         <pre style={{ whiteSpace: "pre-wrap", background: "#f7f7f7", padding: 16, borderRadius: 12, fontSize: 13 }}>{String(this.state.error?.stack || this.state.error)}</pre>
-        <button onClick={() => location.reload()} style={{ marginTop: 16, padding: "12px 20px", borderRadius: 8, background: "#222", color: "#fff", border: 0, cursor: "pointer" }}>
+        <button onClick={() => location.reload()} style={{ marginTop: 16, padding: "12px 20px", borderRadius: 8, background: "linear-gradient(90deg,#F23B9E,#7C5CFF)", color: "#fff", border: 0, cursor: "pointer" }}>
           Reload
         </button>
       </div>

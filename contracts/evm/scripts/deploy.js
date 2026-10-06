@@ -17,7 +17,7 @@ const hre = require("hardhat");
 
 const ROOT = path.resolve(__dirname, "../../..");
 const DEPLOYMENTS_FILE = path.join(ROOT, "web/src/config/deployments.json");
-const SEED_FILE = path.join(ROOT, "server/src/seed/listings.json");
+const SEED_FILES = ["server/src/seed/listings.json", "server/src/seed/experiences.json"].map((f) => path.join(ROOT, f));
 const ABI_DIR = path.join(ROOT, "web/src/config/abi");
 
 // Only used to derive native-coin prices for demo listings on local chains.
@@ -54,7 +54,8 @@ async function main() {
 
   const seedListings = {};
   if (isLocal || process.env.SEED_LISTINGS === "1") {
-    const listings = JSON.parse(fs.readFileSync(SEED_FILE, "utf8"));
+    // Stays and experiences share the escrow: an experience is a one-day listing priced per group.
+    const listings = SEED_FILES.flatMap((f) => JSON.parse(fs.readFileSync(f, "utf8")));
     const hosts = isLocal ? signers.slice(1, 5) : [deployer];
     const usdc = await ethers.getContractAt("MockUSDC", usdcAddress);
     for (let i = 0; i < listings.length; i++) {
@@ -62,11 +63,11 @@ async function main() {
       const host = hosts[l.hostIndex % hosts.length];
       const c = escrow.connect(host);
       const id = (await c.listingCount.staticCall()) + 1n;
-      await (await c.createListing(POLICY[l.cancellationPolicy], l.minNights, l.maxNights, `tourisme://listing/${l.slug}`)).wait();
+      await (await c.createListing(POLICY[l.cancellationPolicy], l.minNights || 1, l.maxNights || 1, `tourisme://listing/${l.slug}`)).wait();
       const nightlyWei = ethers.parseEther((l.priceUsd / DEMO_ETH_USD).toFixed(6));
-      const cleaningWei = ethers.parseEther((l.cleaningFeeUsd / DEMO_ETH_USD).toFixed(6));
+      const cleaningWei = ethers.parseEther(((l.cleaningFeeUsd || 0) / DEMO_ETH_USD).toFixed(6));
       await (await c.setPrice(id, ethers.ZeroAddress, nightlyWei, cleaningWei, true)).wait();
-      await (await c.setPrice(id, usdcAddress, BigInt(l.priceUsd) * 1_000_000n, BigInt(l.cleaningFeeUsd) * 1_000_000n, true)).wait();
+      await (await c.setPrice(id, usdcAddress, BigInt(l.priceUsd) * 1_000_000n, BigInt(l.cleaningFeeUsd || 0) * 1_000_000n, true)).wait();
       seedListings[l.slug] = Number(id);
     }
     console.log(`Published ${listings.length} demo listings on-chain`);
