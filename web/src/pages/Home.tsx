@@ -1,14 +1,16 @@
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { List, Map as MapIcon, ShieldCheck } from "lucide-react";
+import { ArrowRight, List, Map as MapIcon, ShieldCheck } from "lucide-react";
 import { api, qs } from "../lib/api";
 import { useMediaQuery, useTitle } from "../lib/hooks";
 import type { Listing } from "../lib/types";
 import ListingCard, { ListingCardSkeleton } from "../components/ListingCard";
 import MapView from "../components/MapView";
 import { CategoryBar, FiltersModal, countFilters } from "../components/Filters";
+import Hero, { HowItWorks } from "../components/Hero";
+import ExperienceCard from "../components/ExperienceCard";
 import { Button, Container, Select } from "../components/ui";
 
 interface SearchResponse {
@@ -54,6 +56,13 @@ export default function Home() {
     [params, location, guests]
   );
 
+  const landing = !params.toString();
+  const { data: featuredExperiences } = useQuery({
+    queryKey: ["featured-experiences"],
+    queryFn: () => api.get<SearchResponse>("/listings?kind=experience&limit=4&sort=rating"),
+    enabled: landing,
+    staleTime: 5 * 60_000,
+  });
   const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ["search", query],
     queryFn: () => api.get<SearchResponse>(`/listings${qs(query)}`),
@@ -77,7 +86,8 @@ export default function Home() {
 
   return (
     <div>
-      <div className="sticky top-[81px] z-20 bg-white md:top-[80px]">
+      {landing && <Hero />}
+      <div id="explore" className="sticky top-[81px] z-20 border-b border-white/5 bg-canvas/85 backdrop-blur-xl md:top-[80px]">
         <Container wide className="border-b border-ink-faint/0">
           <CategoryBar onFilters={() => setFiltersOpen(true)} filterCount={countFilters(params)} />
         </Container>
@@ -145,6 +155,27 @@ export default function Home() {
               </div>
             )}
 
+            {landing && featuredExperiences && featuredExperiences.results.length > 0 && (
+              <section className="mt-16">
+                <div className="mb-6 flex items-end justify-between gap-4">
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-mint">New</span>
+                    <h2 className="font-display text-2xl font-bold">Experiences & tours</h2>
+                    <p className="text-sm text-ink-muted">Private, hosted by locals, paid through the same escrow.</p>
+                  </div>
+                  <Link to="/experiences" className="flex shrink-0 items-center gap-2 rounded-full border border-brand/40 px-5 py-2 text-sm font-semibold text-brand hover:bg-brand/10">
+                    See all <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                  {featuredExperiences.results.map((l) => (
+                    <ExperienceCard key={l.id} listing={l} />
+                  ))}
+                </div>
+              </section>
+            )}
+            {landing && <HowItWorks />}
+
             {data && data.pages > 1 && (
               <div className="mt-12 flex items-center justify-center gap-2">
                 {Array.from({ length: data.pages }).map((_, i) => (
@@ -152,7 +183,7 @@ export default function Home() {
                     key={i}
                     type="button"
                     onClick={() => (setParam("page", i ? String(i + 1) : null), window.scrollTo({ top: 0, behavior: "smooth" }))}
-                    className={clsx("h-9 w-9 rounded-full text-sm font-semibold", data.page === i + 1 ? "bg-ink text-white" : "hover:bg-ink-bg")}
+                    className={clsx("h-9 w-9 rounded-full text-sm font-semibold", data.page === i + 1 ? "bg-brand-gradient text-white" : "hover:bg-white/10")}
                   >
                     {i + 1}
                   </button>
@@ -176,13 +207,14 @@ export default function Home() {
 
       <button
         type="button"
+        style={landing && !showMap ? { opacity: 0, pointerEvents: "none" } : undefined}
         onClick={() => {
           if (showMap || params.get("bounds")) {
             setShowMap(false);
             setParam("bounds", null);
           } else setShowMap(true);
         }}
-        className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-5 py-3.5 text-sm font-semibold text-white shadow-pop transition hover:scale-105 md:bottom-10"
+        className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-surface-2 px-5 py-3.5 text-sm font-semibold text-ink shadow-pop transition hover:scale-105 hover:border-brand/60 md:bottom-10"
       >
         {showMap || params.get("bounds") ? (
           <>

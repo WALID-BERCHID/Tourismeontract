@@ -60,7 +60,7 @@ export default function MapView({
   const center = useMemo<[number, number]>(() => (listings[0] ? [listings[0].lat, listings[0].lng] : [31.63, -7.99]), [listings]);
   return (
     <MapContainer center={center} zoom={5} scrollWheelZoom className="h-full w-full" zoomControl>
-      <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>' url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+      <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>' url="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png" />
       <FitBounds listings={listings} disabled={fixedBounds} />
       <BoundsWatcher onMove={onMove} />
       {listings.map((l) => (
@@ -90,7 +90,7 @@ export default function MapView({
 export function LocationMap({ lat, lng, exact = false }: { lat: number; lng: number; exact?: boolean }) {
   return (
     <MapContainer center={[lat, lng]} zoom={13} scrollWheelZoom={false} className="h-full w-full">
-      <TileLayer attribution='&copy; OpenStreetMap &copy; CARTO' url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+      <TileLayer attribution='&copy; OpenStreetMap &copy; CARTO' url="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png" />
       {exact ? (
         <Marker position={[lat, lng]} icon={L.divIcon({ className: "", html: '<div class="home-pin"></div>', iconSize: [0, 0] })} />
       ) : (

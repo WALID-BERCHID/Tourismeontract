@@ -37,7 +37,7 @@ function OnChainBalances({ net }: { net: Network }) {
     }
   };
   return (
-    <div className="rounded-2xl border border-ink-faint p-6">
+    <div className="glass rounded-3xl p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 font-semibold">
           <ChainIcon chain="evm" className="h-5 w-5" /> {net.name}
@@ -57,7 +57,7 @@ function OnChainBalances({ net }: { net: Network }) {
       ) : (
         <div className="space-y-3">
           {data?.map((b) => (
-            <div key={b.symbol} className="flex items-center justify-between rounded-xl bg-ink-bg px-4 py-3">
+            <div key={b.symbol} className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3">
               <div>
                 <div className="text-lg font-semibold">
                   {Number(b.formatted).toLocaleString("en-US", { maximumFractionDigits: b.symbol === "USDC" ? 2 : 5 })} {b.symbol}
@@ -86,11 +86,11 @@ export default function Earnings() {
 
   return (
     <Container className="pb-24 pt-10">
-      <h1 className="text-[32px] font-semibold">Earnings</h1>
+      <h1 className="font-display text-[32px] font-semibold">Earnings</h1>
       <p className="text-ink-muted">Payouts are released by the escrow contract 24 hours after each check-in and can be withdrawn to your wallet anytime.</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_380px]">
-        <div className="rounded-2xl border border-ink-faint p-6">
+        <div className="glass rounded-3xl p-6">
           <div className="flex flex-wrap items-end gap-10">
             <div>
               <div className="text-sm text-ink-muted">Paid out</div>
@@ -106,10 +106,10 @@ export default function Earnings() {
               <p className="m-auto text-sm text-ink-muted">Your monthly earnings chart will appear after your first booking.</p>
             ) : (
               stats.monthly.map((m) => (
-                <div key={m.month} className="group flex flex-1 flex-col items-center gap-2">
-                  <div className="relative flex w-full flex-1 items-end">
-                    <div className="w-full rounded-t-md bg-brand/80 transition group-hover:bg-brand" style={{ height: `${Math.max(4, (m.earnings / max) * 100)}%` }} />
-                    <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100">{fmt(m.earnings, false)}</span>
+                <div key={m.month} className="group flex h-full flex-1 flex-col items-center gap-2">
+                  <div className="relative w-full flex-1">
+                    <div className="absolute inset-x-0 bottom-0 rounded-t-md bg-brand-gradient opacity-80 transition group-hover:opacity-100 group-hover:shadow-glow" style={{ height: `${Math.max(4, (m.earnings / max) * 100)}%` }} />
+                    <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-ink px-2 py-1 text-xs text-canvas opacity-0 group-hover:opacity-100">{fmt(m.earnings, false)}</span>
                   </div>
                   <span className="text-xs text-ink-muted">{new Date(`${m.month}-01T00:00:00Z`).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" })}</span>
                 </div>
@@ -125,7 +125,7 @@ export default function Earnings() {
         </div>
       </div>
 
-      <h2 className="mb-4 mt-12 text-[22px] font-semibold">Payout history</h2>
+      <h2 className="mb-4 mt-12 font-display text-[22px] font-semibold">Payout history</h2>
       {stats.payouts.length === 0 ? (
         <EmptyState title="No payouts yet" body="Completed stays and their escrow releases will be listed here." />
       ) : (

@@ -5,17 +5,35 @@
 @layer base {
   html {
     -webkit-tap-highlight-color: transparent;
+    color-scheme: dark;
   }
   body {
-    @apply bg-white font-sans text-ink antialiased;
+    @apply bg-canvas font-sans text-ink antialiased;
     font-feature-settings: "cv11", "ss01";
+    background-image:
+      radial-gradient(900px 500px at 8% -10%, rgba(124, 92, 255, 0.22), transparent 60%),
+      radial-gradient(700px 420px at 100% 0%, rgba(242, 59, 158, 0.16), transparent 60%),
+      radial-gradient(900px 600px at 50% 110%, rgba(56, 189, 248, 0.1), transparent 60%);
+    background-attachment: fixed;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
   }
   :focus-visible {
-    outline: 2px solid #222;
+    outline: 2px solid #f23b9e;
     outline-offset: 2px;
   }
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
+  }
+  input[type="date"],
+  input[type="time"] {
+    color-scheme: dark;
+  }
+  ::selection {
+    background: rgba(242, 59, 158, 0.45);
   }
 }
 
@@ -26,6 +44,54 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  /* Gradient headline text, like the "Create, Sell and Collect" treatment. */
+  .text-gradient {
+    background: linear-gradient(90deg, #ff4fb0, #b98cff 60%, #3df5a8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-brand {
+    background: linear-gradient(90deg, #ff4fb0, #a06bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* Frosted glass panel with a soft hairline – the base of every card. */
+  .glass {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .glass-strong {
+    background: linear-gradient(180deg, rgba(29, 25, 74, 0.92), rgba(21, 18, 58, 0.96));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+  /* Gradient hairline border using a mask – for highlighted cards. */
+  .border-gradient::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(242, 59, 158, 0.8), rgba(124, 92, 255, 0.5), rgba(61, 245, 168, 0.5));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  /* Subtle dotted grid used behind hero sections. */
+  .bg-grid {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  .glow-dot {
+    box-shadow: 0 0 12px currentColor;
+  }
 }
 
 /* Map price pins */
@@ -33,20 +99,21 @@
   transform: translate(-50%, -50%);
   display: inline-block;
   white-space: nowrap;
-  padding: 5px 9px;
+  padding: 5px 10px;
   border-radius: 999px;
-  background: #fff;
-  color: #222;
-  font: 700 14px/1 Inter, system-ui, sans-serif;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.18);
+  background: #1d194a;
+  color: #f5f3ff;
+  font: 700 13px/1 "JetBrains Mono", ui-monospace, monospace;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 14px rgba(3, 2, 20, 0.6);
   transition: transform 0.15s ease, background 0.15s, color 0.15s;
   cursor: pointer;
 }
 .price-pin:hover,
 .price-pin.active {
   transform: translate(-50%, -50%) scale(1.08);
-  background: #222;
-  color: #fff;
+  background: linear-gradient(90deg, #f23b9e, #7c5cff);
+  border-color: transparent;
   z-index: 1000;
 }
 .home-pin {
@@ -54,15 +121,16 @@
   height: 44px;
   transform: translate(-50%, -50%);
   border-radius: 999px;
-  background: #ff385c url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M12 3 2 12h3v8h5v-5h4v5h5v-8h3z'/></svg>") center/22px no-repeat;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #f23b9e, #7c5cff) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M12 3 2 12h3v8h5v-5h4v5h5v-8h3z'/></svg>") center/22px no-repeat;
+  box-shadow: 0 0 0 4px rgba(242, 59, 158, 0.25), 0 8px 20px rgba(3, 2, 20, 0.6);
 }
 .area-circle {
   width: 220px;
   height: 220px;
   transform: translate(-50%, -50%);
   border-radius: 999px;
-  background: rgba(255, 56, 92, 0.12);
+  background: rgba(242, 59, 158, 0.14);
+  border: 1px solid rgba(242, 59, 158, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,9 +140,11 @@
 }
 .listing-popup .leaflet-popup-content-wrapper {
   padding: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  background: #1d194a;
+  color: #f5f3ff;
+  box-shadow: 0 16px 40px rgba(3, 2, 20, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .listing-popup .leaflet-popup-content {
   margin: 0;
@@ -85,7 +155,19 @@
 }
 .leaflet-container {
   font-family: Inter, system-ui, sans-serif;
-  background: #e8eef1;
+  background: #0f0d2a;
+}
+.leaflet-control-zoom a {
+  background: #1d194a !important;
+  color: #f5f3ff !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(10, 9, 32, 0.7) !important;
+  color: #8f89be !important;
+}
+.leaflet-control-attribution a {
+  color: #cbc6ee !important;
 }
 
 /* WharfKit modal above our modals */

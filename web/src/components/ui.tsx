@@ -25,16 +25,16 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       disabled={disabled || loading}
       className={clsx(
-        "relative inline-flex select-none items-center justify-center gap-2 rounded-lg font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
+        "relative inline-flex select-none items-center justify-center gap-2 rounded-xl font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50",
         size === "sm" && "px-3.5 py-2 text-sm",
         size === "md" && "px-5 py-3 text-[15px]",
         size === "lg" && "px-6 py-3.5 text-base",
-        variant === "primary" && "bg-gradient-to-r from-[#E61E4D] via-[#E31C5F] to-[#D70466] text-white hover:brightness-110",
-        variant === "dark" && "bg-ink text-white hover:bg-black",
-        variant === "outline" && "border border-ink bg-white text-ink hover:bg-ink-bg",
-        variant === "ghost" && "text-ink hover:bg-ink-bg",
-        variant === "link" && "px-0 py-0 text-ink underline underline-offset-2 hover:text-black",
-        variant === "danger" && "border border-red-600 bg-white text-red-600 hover:bg-red-50",
+        variant === "primary" && "bg-brand-gradient text-white shadow-glow hover:brightness-110 hover:shadow-glow-violet",
+        variant === "dark" && "bg-ink text-canvas hover:bg-white",
+        variant === "outline" && "border border-white/15 bg-white/5 text-ink hover:border-brand/60 hover:bg-white/10",
+        variant === "ghost" && "text-ink hover:bg-white/5",
+        variant === "link" && "px-0 py-0 text-ink underline underline-offset-2 hover:text-brand",
+        variant === "danger" && "border border-red-400/50 bg-red-500/10 text-red-300 hover:bg-red-500/20",
         full && "w-full",
         className
       )}
@@ -48,7 +48,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
 
 export function IconButton({ className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button className={clsx("inline-flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-ink-bg", className)} {...rest}>
+    <button className={clsx("inline-flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-white/10", className)} {...rest}>
       {children}
     </button>
   );
@@ -64,11 +64,11 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   const inputId = id || rest.name;
   return (
     <div className={className}>
-      <label htmlFor={inputId} className={clsx("relative block rounded-lg border bg-white transition focus-within:border-ink focus-within:ring-1 focus-within:ring-ink", error ? "border-red-600" : "border-ink-line")}>
+      <label htmlFor={inputId} className={clsx("relative block rounded-xl border bg-canvas-2/60 transition focus-within:border-brand focus-within:ring-1 focus-within:ring-brand", error ? "border-red-400" : "border-ink-line")}>
         {label && <span className="block px-3 pt-2 text-xs text-ink-muted">{label}</span>}
         <input ref={ref} id={inputId} className={clsx("w-full rounded-lg bg-transparent px-3 text-[15px] text-ink placeholder:text-ink-muted focus:outline-none", label ? "pb-2 pt-0.5" : "py-3")} {...rest} />
       </label>
-      {error ? <p className="mt-1.5 flex items-center gap-1 text-xs text-red-600">{error}</p> : hint ? <p className="mt-1.5 text-xs text-ink-muted">{hint}</p> : null}
+      {error ? <p className="mt-1.5 flex items-center gap-1 text-xs text-red-400">{error}</p> : hint ? <p className="mt-1.5 text-xs text-ink-muted">{hint}</p> : null}
     </div>
   );
 });
@@ -79,19 +79,19 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
       {label && <label className="mb-2 block text-sm font-semibold">{label}</label>}
       <textarea
         ref={ref}
-        className={clsx("w-full rounded-lg border bg-white px-3 py-3 text-[15px] focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink", error ? "border-red-600" : "border-ink-line")}
+        className={clsx("w-full rounded-xl border bg-canvas-2/60 px-3 py-3 text-[15px] focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand", error ? "border-red-400" : "border-ink-line")}
         {...rest}
       />
-      {error ? <p className="mt-1.5 text-xs text-red-600">{error}</p> : hint ? <p className="mt-1.5 text-xs text-ink-muted">{hint}</p> : null}
+      {error ? <p className="mt-1.5 text-xs text-red-400">{error}</p> : hint ? <p className="mt-1.5 text-xs text-ink-muted">{hint}</p> : null}
     </div>
   );
 });
 
 export function Select({ label, value, onChange, options, className }: { label?: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[]; className?: string }) {
   return (
-    <label className={clsx("relative block rounded-lg border border-ink-line bg-white focus-within:border-ink focus-within:ring-1 focus-within:ring-ink", className)}>
+    <label className={clsx("relative block rounded-xl border border-ink-line bg-canvas-2/60 focus-within:border-brand focus-within:ring-1 focus-within:ring-brand", className)}>
       {label && <span className="block px-3 pt-2 text-xs text-ink-muted">{label}</span>}
-      <select value={value} onChange={(e) => onChange(e.target.value)} className={clsx("w-full appearance-none rounded-lg bg-transparent px-3 text-[15px] focus:outline-none", label ? "pb-2" : "py-3")}>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className={clsx("w-full appearance-none rounded-xl bg-transparent px-3 text-[15px] text-ink focus:outline-none [&>option]:bg-surface-2", label ? "pb-2" : "py-3")}>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
@@ -143,9 +143,9 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={clsx("relative h-8 w-12 shrink-0 rounded-full transition", checked ? "bg-ink" : "bg-ink-line")}
+      className={clsx("relative h-8 w-12 shrink-0 rounded-full transition", checked ? "bg-brand-gradient shadow-glow" : "bg-ink-line")}
     >
-      <span className={clsx("absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all", checked ? "left-5" : "left-1")} />
+      <span className={clsx("absolute top-1 h-6 w-6 rounded-full bg-surface shadow transition-all", checked ? "left-5" : "left-1")} />
     </button>
   );
 }
@@ -181,10 +181,10 @@ export function Modal({
   if (!open) return null;
   return createPortal(
     <div className="fixed inset-0 z-[1000] flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 animate-fade-in bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 animate-fade-in bg-canvas/80 backdrop-blur-sm" onClick={onClose} />
       <div
         className={clsx(
-          "relative flex max-h-[94vh] w-full animate-slide-up flex-col overflow-hidden rounded-t-2xl bg-white shadow-pop sm:rounded-2xl",
+          "glass-strong relative flex max-h-[94vh] w-full animate-slide-up flex-col overflow-hidden rounded-t-3xl shadow-pop sm:rounded-3xl",
           size === "sm" && "sm:max-w-md",
           size === "md" && "sm:max-w-xl",
           size === "lg" && "sm:max-w-3xl",
@@ -210,7 +210,7 @@ export function Modal({
 // Display
 // ---------------------------------------------------------------------------
 
-const FALLBACK_GRADIENTS = ["from-rose-200 to-amber-100", "from-sky-200 to-emerald-100", "from-violet-200 to-pink-100", "from-amber-200 to-orange-100", "from-teal-200 to-cyan-100"];
+const FALLBACK_GRADIENTS = ["from-fuchsia-600/60 to-violet-900", "from-sky-600/60 to-indigo-900", "from-violet-600/60 to-pink-900", "from-amber-500/50 to-rose-900", "from-teal-500/50 to-cyan-900"];
 
 /** Image with a graceful gradient placeholder when the source fails (offline, blocked CDN...). */
 export function Img({ src, alt, className, seed = 0 }: { src?: string | null; alt: string; className?: string; seed?: number }) {
@@ -245,7 +245,7 @@ export function Avatar({ src, name, size = 40, className }: { src?: string | nul
   const [failed, setFailed] = useState(false);
   const initial = (name || "?").trim().charAt(0).toUpperCase() || "?";
   return (
-    <span className={clsx("inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink text-white", className)} style={{ width: size, height: size, fontSize: size * 0.42 }}>
+    <span className={clsx("inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink text-canvas", className)} style={{ width: size, height: size, fontSize: size * 0.42 }}>
       {src && !failed ? <img src={src} alt={name || ""} className="h-full w-full object-cover" onError={() => setFailed(true)} /> : <span className="font-semibold">{initial}</span>}
     </span>
   );
@@ -267,11 +267,11 @@ export function StatusBadge({ status }: { status: string }) {
     <span
       className={clsx(
         "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold",
-        s.tone === "green" && "bg-emerald-50 text-emerald-700",
-        s.tone === "amber" && "bg-amber-50 text-amber-700",
-        s.tone === "gray" && "bg-ink-bg text-ink-muted",
-        s.tone === "red" && "bg-red-50 text-red-700",
-        s.tone === "blue" && "bg-sky-50 text-sky-700"
+        s.tone === "green" && "bg-emerald-500/15 text-emerald-300",
+        s.tone === "amber" && "bg-amber-500/15 text-amber-300",
+        s.tone === "gray" && "bg-white/10 text-ink-soft",
+        s.tone === "red" && "bg-red-500/15 text-red-300",
+        s.tone === "blue" && "bg-sky-500/15 text-sky-300"
       )}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -293,12 +293,12 @@ export function PageLoader() {
 }
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={clsx("relative overflow-hidden rounded-lg bg-ink-faint before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.4s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent", className)} />;
+  return <div className={clsx("relative overflow-hidden rounded-lg bg-ink-faint before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.4s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent", className)} />;
 }
 
 export function EmptyState({ icon, title, body, action }: { icon?: ReactNode; title: string; body?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-2xl border border-ink-faint p-8 sm:p-10">
+    <div className="glass flex flex-col items-start gap-3 rounded-3xl p-8 sm:p-10">
       {icon && <div className="text-ink">{icon}</div>}
       <h3 className="text-xl font-semibold">{title}</h3>
       {body && <p className="max-w-md text-ink-muted">{body}</p>}
@@ -319,11 +319,11 @@ export function Alert({ tone = "info", children, className }: { tone?: "info" | 
   return (
     <div
       className={clsx(
-        "rounded-xl border px-4 py-3 text-sm",
-        tone === "info" && "border-sky-200 bg-sky-50 text-sky-900",
-        tone === "warn" && "border-amber-200 bg-amber-50 text-amber-900",
-        tone === "error" && "border-red-200 bg-red-50 text-red-800",
-        tone === "success" && "border-emerald-200 bg-emerald-50 text-emerald-900",
+        "rounded-xl border px-4 py-3 text-sm backdrop-blur",
+        tone === "info" && "border-sky-500/30 bg-sky-500/15 text-sky-300",
+        tone === "warn" && "border-amber-500/30 bg-amber-500/15 text-amber-300",
+        tone === "error" && "border-red-500/30 bg-red-500/15 text-red-300",
+        tone === "success" && "border-emerald-500/30 bg-emerald-500/15 text-emerald-300",
         className
       )}
     >

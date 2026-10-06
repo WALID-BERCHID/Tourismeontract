@@ -27,7 +27,7 @@ function ConversationList({ activeId }: { activeId?: number }) {
               ["host", "Hosting"],
             ] as const
           ).map(([k, label]) => (
-            <button key={k} type="button" onClick={() => setFilter(k)} className={clsx("rounded-full px-4 py-2 text-sm font-medium transition", filter === k ? "bg-ink text-white" : "bg-ink-bg hover:bg-ink-faint")}>
+            <button key={k} type="button" onClick={() => setFilter(k)} className={clsx("rounded-full px-4 py-2 text-sm font-medium transition", filter === k ? "bg-ink text-canvas" : "bg-ink-bg hover:bg-ink-faint")}>
               {label}
             </button>
           ))}
@@ -48,7 +48,7 @@ function ConversationList({ activeId }: { activeId?: number }) {
             <Link key={c.id} to={`/messages/${c.id}`} className={clsx("flex gap-3 rounded-xl p-3 transition", activeId === c.id ? "bg-ink-bg" : "hover:bg-ink-bg/60")}>
               <div className="relative shrink-0">
                 <Img src={c.listing.photo} alt="" seed={c.listing.id} className="h-12 w-12 rounded-lg" />
-                <Avatar src={c.other.avatarUrl} name={c.other.firstName} size={28} className="absolute -bottom-1.5 -right-1.5 border-2 border-white" />
+                <Avatar src={c.other.avatarUrl} name={c.other.firstName} size={28} className="absolute -bottom-1.5 -right-1.5 border-2 border-surface" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex justify-between gap-2 text-sm">
@@ -140,14 +140,14 @@ function Thread({ id }: { id: number }) {
             <div key={m.id}>
               {showDate && <div className="my-4 text-center text-xs font-semibold text-ink-muted">{d}</div>}
               {m.kind === "system" ? (
-                <div className="mx-auto flex max-w-md items-start gap-2 rounded-xl bg-ink-bg px-4 py-3 text-center text-sm text-ink-soft">
+                <div className="mx-auto flex max-w-md items-start gap-2 rounded-xl bg-white/5 px-4 py-3 text-center text-sm text-ink-soft">
                   <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
                   {m.body}
                 </div>
               ) : (
                 <div className={clsx("flex items-end gap-2", m.mine && "flex-row-reverse")}>
                   {!m.mine && <Avatar src={c.other.avatarUrl} name={c.other.firstName} size={28} />}
-                  <div className={clsx("max-w-[75%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px]", m.mine ? "rounded-br-md bg-ink text-white" : "rounded-bl-md bg-ink-bg")}>{m.body}</div>
+                  <div className={clsx("max-w-[75%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px]", m.mine ? "rounded-br-md bg-ink text-canvas" : "rounded-bl-md bg-ink-bg")}>{m.body}</div>
                   <span className="pb-1 text-[11px] text-ink-muted">{new Date(`${m.createdAt.replace(" ", "T")}Z`).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</span>
                 </div>
               )}
@@ -170,7 +170,7 @@ function Thread({ id }: { id: number }) {
           placeholder="Type a message"
           className="max-h-40 min-h-[48px] flex-1 resize-none rounded-3xl border border-ink-line px-5 py-3 text-[15px] focus:border-ink focus:outline-none"
         />
-        <button type="submit" disabled={!body.trim() || sending} aria-label="Send" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white transition disabled:bg-ink-line">
+        <button type="submit" disabled={!body.trim() || sending} aria-label="Send" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-canvas transition disabled:bg-ink-line">
           <ArrowUp className="h-5 w-5" />
         </button>
       </form>

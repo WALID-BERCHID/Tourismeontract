@@ -17,7 +17,7 @@ import { RequireAuth } from "./Trips";
 
 function Section({ icon, title, children, sub }: { icon: React.ReactNode; title: string; sub?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-ink-faint p-6 sm:p-8">
+    <section className="glass rounded-3xl p-6 sm:p-8">
       <div className="mb-6 flex items-start gap-3">
         <span className="mt-0.5">{icon}</span>
         <div>
@@ -137,13 +137,13 @@ function AccountInner() {
       <div className="mb-10 flex items-center gap-5">
         <button type="button" onClick={() => fileRef.current?.click()} className="group relative" aria-label="Change photo">
           <Avatar src={u.avatarUrl} name={u.firstName || u.name} size={84} />
-          <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border border-ink-line bg-white shadow group-hover:bg-ink-bg">
+          <span className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border border-ink-line bg-surface shadow group-hover:bg-ink-bg">
             <Camera className="h-4 w-4" />
           </span>
         </button>
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => e.target.files?.[0] && uploadAvatar(e.target.files[0])} />
         <div>
-          <h1 className="text-[32px] font-semibold leading-tight">Account</h1>
+          <h1 className="font-display text-[32px] font-semibold leading-tight">Account</h1>
           <p className="text-ink-muted">
             {u.name}
             {u.email ? `, ${u.email}` : ""} ·{" "}
@@ -194,11 +194,11 @@ function AccountInner() {
             <div className="space-y-3">
               {u.wallets.length === 0 && <p className="text-sm text-ink-muted">No wallets linked yet.</p>}
               {u.wallets.map((w) => (
-                <div key={`${w.chain}:${w.address}`} className="flex items-center gap-3 rounded-xl bg-ink-bg px-4 py-3">
+                <div key={`${w.chain}:${w.address}`} className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
                   <ChainIcon chain={w.chain} className="h-5 w-5" />
                   <span className="flex-1 font-mono text-sm">{shortAddress(w.address)}</span>
                   <span className="text-xs uppercase text-ink-muted">{w.chain}</span>
-                  <button type="button" onClick={() => unlink(w.chain, w.address)} aria-label="Remove wallet" className="rounded-full p-1.5 hover:bg-white">
+                  <button type="button" onClick={() => unlink(w.chain, w.address)} aria-label="Remove wallet" className="rounded-full p-1.5 hover:bg-surface-2">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -278,7 +278,7 @@ export function Profile() {
     <Container className="pb-24 pt-10">
       <div className="grid gap-12 lg:grid-cols-[340px_1fr] lg:gap-20">
         <aside className="space-y-6">
-          <div className="grid grid-cols-[1fr_110px] items-center rounded-3xl p-8 shadow-card">
+          <div className="grid grid-cols-[1fr_110px] items-center glass rounded-3xl p-8">
             <div className="flex flex-col items-center text-center">
               <span className="relative">
                 <Avatar src={u.avatarUrl} name={u.firstName} size={104} />
@@ -334,10 +334,10 @@ export function Profile() {
           {reviews.length > 0 && (
             <>
               <Divider className="my-10" />
-              <h2 className="mb-6 text-[22px] font-semibold">What people are saying about {u.firstName}</h2>
+              <h2 className="mb-6 font-display text-[22px] font-semibold">What people are saying about {u.firstName}</h2>
               <div className="scrollbar-hide -mx-2 flex gap-4 overflow-x-auto px-2 pb-2">
                 {reviews.map((r) => (
-                  <div key={r.id} className="w-[320px] shrink-0 rounded-2xl border border-ink-line p-6">
+                  <div key={r.id} className="w-[320px] shrink-0 glass rounded-3xl p-6">
                     <p className="line-clamp-5 leading-relaxed">“{r.comment}”</p>
                     <div className="mt-5 flex items-center gap-3">
                       <Avatar src={r.author.avatarUrl} name={r.author.name} size={40} />
@@ -354,7 +354,7 @@ export function Profile() {
           {listings.length > 0 && (
             <>
               <Divider className="my-10" />
-              <h2 className="mb-6 text-[22px] font-semibold">{u.firstName}'s listings</h2>
+              <h2 className="mb-6 font-display text-[22px] font-semibold">{u.firstName}'s listings</h2>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {listings.map((l) => (
                   <ListingCard key={l.id} listing={l} />

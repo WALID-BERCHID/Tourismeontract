@@ -8,7 +8,7 @@ import { ApiError, api, qs } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { useCurrency } from "../lib/currency";
 import { useMeta, useTitle } from "../lib/hooks";
-import { POLICY_TEXT, dateRange, fromDay, nightsBetween, shortAddress, toDay, todayDay } from "../lib/format";
+import { POLICY_TEXT, dateRange, fromDay, longDate, nightsBetween, shortAddress, toDay, todayDay } from "../lib/format";
 import type { Booking, Listing, Network, Quote } from "../lib/types";
 import { balanceOf, connectWallet, errorMessage, fmtToken, pay, quote as cryptoQuote, type PayStep } from "../lib/payments";
 import { evmFaucet, localEthFaucet } from "../lib/chains/evm";
@@ -109,7 +109,7 @@ export default function Checkout() {
     return (
       <Container className="py-24 text-center">
         <h1 className="text-2xl font-semibold">Choose your dates first</h1>
-        <Link to={`/rooms/${listing.id}`} className="mt-4 inline-block font-semibold underline">
+        <Link to={`${listing.kind === "experience" ? "/experiences" : "/rooms"}/${listing.id}`} className="mt-4 inline-block font-semibold underline">
           Back to listing
         </Link>
       </Container>
@@ -117,6 +117,7 @@ export default function Checkout() {
   }
 
   const policy = POLICY_TEXT[listing.cancellationPolicy || "flexible"];
+  const isExperience = listing.kind === "experience";
   const q = quoteRes?.quote;
   const requestMode = !listing.instantBook;
   const freeCancelUntil =
@@ -197,13 +198,13 @@ export default function Checkout() {
         <button type="button" onClick={() => navigate(-1)} aria-label="Back" className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-ink-bg">
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-[28px] font-semibold sm:text-[32px]">{requestMode ? "Request to book" : "Confirm and pay"}</h1>
+        <h1 className="font-display text-[28px] font-semibold sm:text-[32px]">{requestMode ? "Request to book" : "Confirm and pay"}</h1>
       </div>
 
       <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-24">
         <div className="min-w-0">
           {requestMode && (
-            <div className="mb-8 flex items-start justify-between gap-6 rounded-xl border border-ink-line p-6">
+            <div className="mb-8 flex items-start justify-between gap-6 glass rounded-2xl p-6">
               <div>
                 <div className="font-semibold">This is a rare find.</div>
                 <p className="text-ink-muted">The host will review your request within 24 hours. Your payment is locked in escrow meanwhile and refunded in full if they decline.</p>
@@ -213,15 +214,17 @@ export default function Checkout() {
           )}
 
           <section>
-            <h2 className="mb-6 text-[22px] font-semibold">Your trip</h2>
+            <h2 className="mb-6 font-display text-[22px] font-semibold">{isExperience ? "Your experience" : "Your trip"}</h2>
             <div className="flex justify-between">
               <div>
-                <div className="font-semibold">Dates</div>
-                <div>{dateRange(checkIn, checkOut)}</div>
+                <div className="font-semibold">{isExperience ? "Date" : "Dates"}</div>
+                <div>{isExperience ? `${longDate(checkIn)}${listing.startTime ? ` · starts ${listing.startTime}` : ""}` : dateRange(checkIn, checkOut)}</div>
               </div>
-              <button type="button" className="font-semibold underline" onClick={() => setEditDates(true)} disabled={busy}>
-                Edit
-              </button>
+              {!isExperience && (
+                <button type="button" className="font-semibold underline" onClick={() => setEditDates(true)} disabled={busy}>
+                  Edit
+                </button>
+              )}
             </div>
             <div className="mt-6 flex justify-between">
               <div>
@@ -240,7 +243,7 @@ export default function Checkout() {
 
           {!user ? (
             <section>
-              <h2 className="mb-4 text-[22px] font-semibold">Log in or sign up to book</h2>
+              <h2 className="mb-4 font-display text-[22px] font-semibold">Log in or sign up to book</h2>
               <p className="mb-6 text-ink-muted">Use your email or connect a wallet – signing in with a wallet costs no gas.</p>
               <Button size="lg" onClick={() => openAuth("login")}>
                 Continue
@@ -249,7 +252,7 @@ export default function Checkout() {
           ) : (
             <>
               <section>
-                <h2 className="mb-2 text-[22px] font-semibold">Pay with</h2>
+                <h2 className="mb-2 font-display text-[22px] font-semibold">Pay with</h2>
                 <p className="mb-5 text-sm text-ink-muted">Choose the blockchain and currency for your escrow payment.</p>
                 {networks.length === 0 ? (
                   <Alert tone="warn">This host hasn't enabled on-chain payments yet. Message them to ask when they'll be bookable.</Alert>
@@ -283,7 +286,7 @@ export default function Checkout() {
                         type="button"
                         disabled={busy}
                         onClick={() => setToken(t.address!)}
-                        className={clsx("rounded-full border px-5 py-2 text-sm font-semibold transition", tokenAddr === t.address ? "border-ink bg-ink text-white" : "border-ink-line hover:border-ink")}
+                        className={clsx("rounded-full border px-5 py-2 text-sm font-semibold transition", tokenAddr === t.address ? "border-ink bg-ink text-canvas" : "border-ink-line hover:border-ink")}
                       >
                         {t.symbol}
                       </button>
@@ -293,7 +296,7 @@ export default function Checkout() {
               </section>
 
               {net && (
-                <section className="mt-8 rounded-xl bg-ink-bg p-5">
+                <section className="mt-8 rounded-2xl bg-white/5 p-5">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <Wallet className="h-5 w-5" />
@@ -323,12 +326,12 @@ export default function Checkout() {
                         Verify wallet
                       </Button>
                     ) : (
-                      <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                      <CheckCircle2 className="h-6 w-6 text-emerald-400" />
                     )}
                   </div>
                   {insufficient && (
-                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-white p-3 text-sm">
-                      <span className="flex items-center gap-2 text-amber-700">
+                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-surface p-3 text-sm">
+                      <span className="flex items-center gap-2 text-amber-300">
                         <AlertTriangle className="h-4 w-4" /> Not enough {crypto?.symbol} for this payment.
                       </span>
                       {Number(net.chainId) === 31337 && crypto?.symbol !== "USDC" && (
@@ -373,7 +376,7 @@ export default function Checkout() {
 
               <Divider className="my-8" />
               <section>
-                <h2 className="mb-2 text-[22px] font-semibold">{requestMode ? "Message the host" : "Say hello to your host"}</h2>
+                <h2 className="mb-2 font-display text-[22px] font-semibold">{requestMode ? "Message the host" : "Say hello to your host"}</h2>
                 <p className="mb-4 text-ink-muted">
                   {requestMode ? "Required: tell the host a little about your trip and who's coming." : "Share why you're traveling, who's coming with you and what you love about the space."}
                 </p>
@@ -384,7 +387,7 @@ export default function Checkout() {
 
           <Divider className="my-8" />
           <section>
-            <h2 className="mb-4 text-[22px] font-semibold">Cancellation policy</h2>
+            <h2 className="mb-4 font-display text-[22px] font-semibold">Cancellation policy</h2>
             <p>
               {freeCancelUntil && freeCancelUntil > fromDay(todayDay()) ? (
                 <>
@@ -396,7 +399,7 @@ export default function Checkout() {
           </section>
           <Divider className="my-8" />
           <section>
-            <h2 className="mb-4 text-[22px] font-semibold">Ground rules</h2>
+            <h2 className="mb-4 font-display text-[22px] font-semibold">Ground rules</h2>
             <p className="mb-2">We ask every guest to remember a few simple things about what makes a great guest.</p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Follow the house rules</li>
@@ -432,13 +435,14 @@ export default function Checkout() {
 
         {/* Summary */}
         <aside>
-          <div className="sticky top-28 rounded-xl border border-ink-line p-6">
+          <div className="glass-strong sticky top-28 rounded-3xl p-6">
             <div className="flex gap-4">
               <Img src={listing.photos[0]} alt={listing.title} seed={listing.id} className="h-[106px] w-[124px] shrink-0 rounded-lg" />
               <div className="flex min-w-0 flex-col justify-between">
                 <div>
                   <div className="text-xs text-ink-muted">
                     {listing.propertyType} in {listing.city}
+                    {isExperience && listing.durationHours ? ` · ${listing.durationHours} h` : ""}
                   </div>
                   <div className="line-clamp-2 text-sm">{listing.title}</div>
                 </div>
@@ -448,13 +452,11 @@ export default function Checkout() {
               </div>
             </div>
             <Divider className="my-6" />
-            <h3 className="mb-4 text-[22px] font-semibold">Price details</h3>
+            <h3 className="mb-4 font-display text-[22px] font-semibold">Price details</h3>
             {q ? (
               <div className="space-y-3 text-[15px]">
                 <div className="flex justify-between">
-                  <span>
-                    {fmt(q.nightly)} x {nights} night{nights > 1 ? "s" : ""}
-                  </span>
+                  <span>{isExperience ? `Private experience · ${adults + children} guest${adults + children > 1 ? "s" : ""}` : `${fmt(q.nightly)} x ${nights} night${nights > 1 ? "s" : ""}`}</span>
                   <span>{fmt(q.base)}</span>
                 </div>
                 {q.cleaningFee > 0 && (
@@ -481,9 +483,9 @@ export default function Checkout() {
             ) : (
               <p className="text-sm text-ink-muted">{quoteRes?.error || "Loading…"}</p>
             )}
-            <div className="mt-6 flex items-start gap-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
+            <div className="mt-6 flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/15 p-3 text-sm text-emerald-300">
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
-              <span>Funds are held by the escrow smart contract – not by us, not by the host – until 24 hours after check-in.</span>
+              <span>Funds are held by the escrow smart contract – not by us, not by the host – until {isExperience ? "the day after your experience" : "24 hours after check-in"}.</span>
             </div>
           </div>
         </aside>
@@ -493,10 +495,10 @@ export default function Checkout() {
       <Modal open={stage !== "idle" && stage !== "error"} onClose={() => stage === "done" && navigate(`/trips/${booking?.id}`)} title={stage === "done" ? undefined : "Processing payment"} size="sm">
         {stage === "done" && booking ? (
           <div className="p-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50">
-              <CheckCircle2 className="h-9 w-9 text-emerald-600" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/15">
+              <CheckCircle2 className="h-9 w-9 text-emerald-400" />
             </div>
-            <h2 className="text-2xl font-semibold">{booking.status === "pending_host" ? "Request sent!" : "You're going to " + listing.city + "!"}</h2>
+            <h2 className="text-2xl font-semibold">{booking.status === "pending_host" ? "Request sent!" : isExperience ? "You're booked!" : "You're going to " + listing.city + "!"}</h2>
             <p className="mt-2 text-ink-muted">
               {booking.status === "pending_host" ? `${booking.host.firstName} will reply within 24 hours. ` : "Your reservation is confirmed. "}
               Confirmation code <b className="text-ink">{booking.code}</b>. We've emailed you the details.
@@ -518,7 +520,7 @@ export default function Checkout() {
               const state = idx < order ? "done" : idx === order ? "active" : "todo";
               return (
                 <div key={s.id} className="flex items-center gap-3">
-                  {state === "done" ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : state === "active" ? <Loader2 className="h-5 w-5 animate-spin" /> : <span className="h-5 w-5 rounded-full border-2 border-ink-line" />}
+                  {state === "done" ? <CheckCircle2 className="h-5 w-5 text-emerald-400" /> : state === "active" ? <Loader2 className="h-5 w-5 animate-spin" /> : <span className="h-5 w-5 rounded-full border-2 border-ink-line" />}
                   <span className={clsx(state === "todo" && "text-ink-muted", state === "active" && "font-semibold")}>{s.label}</span>
                 </div>
               );

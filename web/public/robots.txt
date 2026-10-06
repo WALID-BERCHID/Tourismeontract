@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /hosting/
+Disallow: /account
+Disallow: /messages
+Disallow: /trips
+Disallow: /admin
+
+Sitemap: https://tourisme.app/sitemap.xml

@@ -65,7 +65,7 @@ export default function AuthModal() {
   return (
     <Modal open onClose={closeAuth} title={title} size="sm" onBack={mode === "forgot" ? () => (reset(), openAuth("login")) : undefined}>
       <div className="p-6">
-        {mode !== "forgot" && <h3 className="mb-5 text-[22px] font-semibold">Welcome to Tourisme</h3>}
+        {mode !== "forgot" && <h3 className="mb-5 font-display text-[22px] font-semibold">Welcome to Tourisme</h3>}
         {error && (
           <Alert tone="error" className="mb-4">
             {error}

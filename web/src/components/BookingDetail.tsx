@@ -71,7 +71,7 @@ function ReviewModal({ booking, role, open, onClose, onDone, net }: { booking: B
           </div>
         </div>
         {role === "guest" && (
-          <div className="rounded-xl bg-ink-bg px-4 py-2">
+          <div className="rounded-xl bg-white/5 px-4 py-2">
             {(
               [
                 ["cleanliness", "Cleanliness"],
@@ -190,7 +190,15 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-white">
               <StatusBadge status={booking.status} />
-              <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">{role === "guest" ? `Your stay in ${booking.listing.city}` : `${booking.guest.firstName}'s stay`}</h1>
+              <h1 className="mt-3 font-display text-2xl font-semibold sm:text-3xl">
+                {booking.listing.kind === "experience"
+                  ? role === "guest"
+                    ? `Your experience in ${booking.listing.city}`
+                    : `${booking.guest.firstName}'s experience`
+                  : role === "guest"
+                    ? `Your stay in ${booking.listing.city}`
+                    : `${booking.guest.firstName}'s stay`}
+              </h1>
               <Link to={`/rooms/${booking.listing.id}`} className="text-white/90 hover:underline">
                 {booking.listing.title}
               </Link>
@@ -213,18 +221,33 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
             </Alert>
           )}
 
-          <div className="mt-8 grid grid-cols-2 divide-x divide-ink-faint rounded-2xl border border-ink-faint">
-            <div className="p-5">
-              <div className="text-sm text-ink-muted">Check-in</div>
-              <div className="text-lg font-semibold">{longDate(booking.checkIn)}</div>
-              <div className="text-sm">After {booking.listing.checkInTime}</div>
+          {booking.listing.kind === "experience" ? (
+            <div className="glass mt-8 grid grid-cols-2 divide-x divide-white/10 rounded-3xl">
+              <div className="p-5">
+                <div className="text-sm text-ink-muted">Date</div>
+                <div className="text-lg font-semibold">{longDate(booking.checkIn)}</div>
+                <div className="text-sm">{booking.listing.checkInTime ? `Starts ${booking.listing.checkInTime}` : "Time confirmed by host"}</div>
+              </div>
+              <div className="p-5">
+                <div className="text-sm text-ink-muted">Duration</div>
+                <div className="text-lg font-semibold">{booking.listing.durationHours ? `${booking.listing.durationHours} h` : "Flexible"}</div>
+                <div className="text-sm">Payout releases the day after</div>
+              </div>
             </div>
-            <div className="p-5">
-              <div className="text-sm text-ink-muted">Checkout</div>
-              <div className="text-lg font-semibold">{longDate(booking.checkOut)}</div>
-              <div className="text-sm">Before {booking.listing.checkOutTime}</div>
+          ) : (
+            <div className="glass mt-8 grid grid-cols-2 divide-x divide-white/10 rounded-3xl">
+              <div className="p-5">
+                <div className="text-sm text-ink-muted">Check-in</div>
+                <div className="text-lg font-semibold">{longDate(booking.checkIn)}</div>
+                <div className="text-sm">After {booking.listing.checkInTime}</div>
+              </div>
+              <div className="p-5">
+                <div className="text-sm text-ink-muted">Checkout</div>
+                <div className="text-lg font-semibold">{longDate(booking.checkOut)}</div>
+                <div className="text-sm">Before {booking.listing.checkOutTime}</div>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-8 space-y-6">
             <div className="flex gap-4">
@@ -248,7 +271,8 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
               <div>
                 <div className="font-semibold">Who's coming</div>
                 <p>
-                  {booking.guests} guest{booking.guests > 1 ? "s" : ""} · {booking.nights} night{booking.nights > 1 ? "s" : ""}
+                  {booking.guests} guest{booking.guests > 1 ? "s" : ""} ·{" "}
+                  {booking.listing.kind === "experience" ? `experience${booking.listing.durationHours ? ` · ${booking.listing.durationHours} h` : ""}` : `${booking.nights} night${booking.nights > 1 ? "s" : ""}`}
                 </p>
               </div>
             </div>
@@ -277,7 +301,7 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
           )}
 
           {booking.message && (
-            <div className="mt-8 rounded-2xl bg-ink-bg p-5">
+            <div className="mt-8 rounded-2xl bg-white/5 p-5">
               <div className="mb-1 text-sm font-semibold">Message from {booking.guest.firstName}</div>
               <p className="italic text-ink-soft">“{booking.message}”</p>
             </div>
@@ -285,7 +309,7 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
         </div>
 
         <aside className="space-y-6">
-          <div className="rounded-2xl border border-ink-faint p-6">
+          <div className="glass rounded-3xl p-6">
             <div className="flex items-center gap-4">
               <Avatar src={other.avatarUrl} name={other.firstName} size={56} />
               <div className="flex-1">
@@ -302,11 +326,11 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
             )}
           </div>
 
-          <div className="rounded-2xl border border-ink-faint p-6">
+          <div className="glass rounded-3xl p-6">
             <h3 className="mb-4 text-lg font-semibold">Payment</h3>
             <div className="space-y-2.5 text-[15px]">
               <div className="flex justify-between">
-                <span className="text-ink-muted">Stay (incl. cleaning)</span>
+                <span className="text-ink-muted">{booking.listing.kind === "experience" ? "Experience (private group)" : "Stay (incl. cleaning)"}</span>
                 <span>{fmt(booking.subtotalUsd)}</span>
               </div>
               {role === "guest" ? (
@@ -344,7 +368,7 @@ export default function BookingDetail({ id, role }: { id: string; role: Role }) 
                   Escrow transaction <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
-              <div className="mt-2 flex items-start gap-2 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
+              <div className="mt-2 flex items-start gap-2 rounded-lg bg-emerald-500/15 p-3 text-sm text-emerald-300">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
                 {booking.status === "completed"
                   ? "Escrow released to the host."

@@ -137,7 +137,7 @@ export default function DateRangePicker({ checkIn, checkOut, onChange, occupied,
                         aria-label={fromDay(day)}
                         className={clsx(
                           "absolute inset-0 m-auto flex h-full w-full items-center justify-center rounded-full text-sm font-medium transition",
-                          (isIn || isOut) && "bg-ink text-white",
+                          (isIn || isOut) && "bg-ink text-canvas",
                           !isIn && !isOut && !disabled && "hover:ring-1 hover:ring-ink",
                           disabled && "cursor-not-allowed text-ink-line",
                           booked && !checkoutOnly && "line-through",

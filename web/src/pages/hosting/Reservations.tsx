@@ -32,7 +32,7 @@ function ReservationList() {
   );
   return (
     <Container wide className="pb-24 pt-10">
-      <h1 className="mb-6 text-[32px] font-semibold">Reservations</h1>
+      <h1 className="mb-6 font-display text-[32px] font-semibold">Reservations</h1>
       <div className="mb-6 flex gap-6 border-b border-ink-faint">
         {(["upcoming", "completed", "cancelled", "all"] as const).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)} className={clsx("-mb-px border-b-2 pb-3 text-sm font-semibold capitalize", tab === t ? "border-ink" : "border-transparent text-ink-muted hover:text-ink")}>

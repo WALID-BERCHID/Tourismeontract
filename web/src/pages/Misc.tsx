@@ -23,7 +23,7 @@ export function VerifyEmail() {
   if (state === "loading") return <PageLoader />;
   return (
     <Container className="flex flex-col items-center py-24 text-center">
-      {state === "ok" ? <CheckCircle2 className="h-14 w-14 text-emerald-600" /> : <XCircle className="h-14 w-14 text-red-600" />}
+      {state === "ok" ? <CheckCircle2 className="h-14 w-14 text-emerald-400" /> : <XCircle className="h-14 w-14 text-red-400" />}
       <h1 className="mt-4 text-3xl font-semibold">{state === "ok" ? "Email confirmed" : "Link expired"}</h1>
       <p className="mt-2 text-ink-muted">{state === "ok" ? "You'll now receive booking confirmations and messages by email." : msg}</p>
       <Link to="/" className="mt-8">
@@ -109,6 +109,23 @@ const FAQ: { id: string; q: string; a: React.ReactNode }[] = [
     a: "When you book, your payment goes into an audited smart contract – not to the host and not to Tourisme. The contract releases the money to the host 24 hours after check-in. If something is wrong, report a problem before then and the payout is frozen until an independent arbiter settles the case on-chain.",
   },
   {
+    id: "trust",
+    q: "Who makes sure the place really exists and I don't lose my money?",
+    a: (
+      <div className="space-y-3">
+        <p>
+          <b>The order of payment protects you, not trust in the host.</b> The host never receives a cent before you arrive: your funds stay in the escrow contract until 24 hours after check-in. If the place doesn't exist or isn't as described, open a dispute in that window – the payout is frozen and an arbiter refunds you from the contract (up to 100%). The host can't withdraw anything in the meantime.
+        </p>
+        <p>
+          Every listing is tied to the host's wallet and public profile; reviews, booking history and disputes follow that wallet on-chain, so a bad actor can't start fresh with a new email.
+        </p>
+        <p className="text-ink-muted">
+          On the roadmap: host identity verification (Verified badge), proof-of-listing documents, a host bond that is forfeited for fake listings, and decentralized jurors instead of a single arbiter.
+        </p>
+      </div>
+    ),
+  },
+  {
     id: "cancellation",
     q: "What are the cancellation options?",
     a: (
@@ -123,7 +140,14 @@ const FAQ: { id: string; q: string; a: React.ReactNode }[] = [
   {
     id: "disputes",
     q: "How do I report a problem with my stay?",
-    a: "Open your trip and select “Report a problem” within 24 hours of check-in. Describe the issue and add photos in the conversation with your host. The arbiter can refund you partially or fully from the escrow.",
+    a: (
+      <div className="space-y-3">
+        <p>Open your trip and select “Report a problem” within 24 hours of check-in. Describe the issue and add photos in the conversation with your host. The payout is frozen immediately.</p>
+        <p>
+          <b>Who judges?</b> The contract has one <i>arbiter</i> address – only it can call <code className="font-mono text-brand-mint">resolveDispute</code> and choose a refund split from 0 to 100%. Today that is the Tourisme team (the admin account); the decision is executed by the contract and visible on the block explorer, and the arbiter can only split the escrowed amount – nothing else. The owner can later point the arbiter to a multisig or a jury contract (e.g. Kleros) without changing the escrow.
+        </p>
+      </div>
+    ),
   },
   {
     id: "fees",
@@ -157,7 +181,7 @@ export function Help() {
     <Container className="max-w-3xl pb-24 pt-12">
       <h1 className="text-4xl font-bold">Hi, how can we help?</h1>
       <p className="mt-3 text-lg text-ink-muted">Everything about booking, paying with crypto escrow, cancellations and hosting.</p>
-      <div className="mt-10 divide-y divide-ink-faint rounded-2xl border border-ink-faint">
+      <div className="glass mt-10 divide-y divide-white/5 rounded-3xl">
         {FAQ.map((f) => (
           <div key={f.id} id={f.id}>
             <button type="button" onClick={() => setOpen(open === f.id ? null : f.id)} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left font-semibold">
@@ -169,7 +193,7 @@ export function Help() {
         ))}
       </div>
       {meta && meta.networks.length > 0 && (
-        <div className="mt-10 rounded-2xl bg-ink-bg p-6">
+        <div className="glass mt-10 rounded-3xl p-6">
           <h2 className="mb-4 font-semibold">Live escrow contracts</h2>
           <div className="space-y-2 text-sm">
             {meta.networks.map((n) => (

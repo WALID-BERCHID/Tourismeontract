@@ -41,9 +41,9 @@ function ReservationCard({ b }: { b: Booking }) {
               ? "Arriving tomorrow"
               : `In ${b.checkInDay - today} days`;
   return (
-    <Link to={`/hosting/reservations/${b.id}`} className="flex w-[300px] shrink-0 flex-col justify-between rounded-2xl border border-ink-line p-5 transition hover:shadow-card">
+    <Link to={`/hosting/reservations/${b.id}`} className="flex w-[300px] shrink-0 flex-col justify-between glass rounded-3xl p-5 transition hover:shadow-card">
       <div>
-        <div className={clsx("text-sm font-semibold", b.status === "pending_host" ? "text-amber-700" : "text-brand")}>{label}</div>
+        <div className={clsx("text-sm font-semibold", b.status === "pending_host" ? "text-amber-300" : "text-brand")}>{label}</div>
         <div className="mt-3 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-lg font-semibold">{b.guest.name}</div>
@@ -102,7 +102,7 @@ export default function Dashboard() {
               ["2", "Set your price & policy", "Nightly price, cleaning fee and cancellation terms – enforced by the contract."],
               ["3", "Publish on-chain", "Sign one transaction per network. Only 3% host fee."],
             ].map(([n, t, d]) => (
-              <div key={n} className="flex gap-4 rounded-2xl bg-white p-5 shadow-sm">
+              <div key={n} className="flex gap-4 rounded-2xl bg-surface p-5 shadow-sm">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink font-bold text-white">{n}</span>
                 <div>
                   <div className="font-semibold">{t}</div>
@@ -120,7 +120,7 @@ export default function Dashboard() {
   return (
     <Container className="pb-24 pt-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-[32px] font-semibold">Welcome back, {user?.firstName || "host"}</h1>
+        <h1 className="font-display text-[32px] font-semibold">Welcome back, {user?.firstName || "host"}</h1>
         <Button variant="outline" onClick={() => navigate("/hosting/listings/new")}>
           <Plus className="h-4 w-4" /> New listing
         </Button>
@@ -133,7 +133,7 @@ export default function Dashboard() {
           { icon: CalendarCheck, label: "Occupancy (next 30d)", value: `${Math.round((stats?.occupancy30d || 0) * 100)}%`, sub: `${stats?.listingCount || 0} active listing${stats?.listingCount === 1 ? "" : "s"}` },
           { icon: Star, label: "Overall rating", value: stats?.rating?.toFixed(2) ?? "–", sub: `${stats?.reviewCount || 0} reviews` },
         ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-ink-faint p-5">
+          <div key={s.label} className="glass rounded-3xl p-5">
             <s.icon className="h-5 w-5 text-ink-muted" />
             <div className="mt-3 text-2xl font-semibold">{s.value}</div>
             <div className="text-sm font-medium">{s.label}</div>
@@ -143,7 +143,7 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-12 flex items-center justify-between">
-        <h2 className="text-[22px] font-semibold">Your reservations</h2>
+        <h2 className="font-display text-[22px] font-semibold">Your reservations</h2>
         <Link to="/hosting/reservations" className="text-sm font-semibold underline">
           All reservations ({all.length})
         </Link>
@@ -180,14 +180,14 @@ export default function Dashboard() {
       </div>
 
       <div className="mt-12 flex items-center justify-between">
-        <h2 className="text-[22px] font-semibold">Your listings</h2>
+        <h2 className="font-display text-[22px] font-semibold">Your listings</h2>
         <Link to="/hosting/listings" className="flex items-center gap-1 text-sm font-semibold underline">
           Manage <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {listings?.listings.slice(0, 6).map((l) => (
-          <Link key={l.id} to={`/hosting/listings/${l.id}/edit`} className="flex gap-4 rounded-2xl border border-ink-faint p-3 hover:shadow-card">
+          <Link key={l.id} to={`/hosting/listings/${l.id}/edit`} className="flex gap-4 glass rounded-3xl p-3 hover:shadow-card">
             <Img src={l.photos[0]} alt={l.title} seed={l.id} className="h-20 w-20 shrink-0 rounded-xl" />
             <div className="min-w-0 py-1">
               <div className="truncate font-semibold">{l.title}</div>
@@ -202,7 +202,7 @@ export default function Dashboard() {
           </Link>
         ))}
       </div>
-      <div className="mt-12 rounded-2xl bg-ink-bg p-6 text-sm">
+      <div className="mt-12 rounded-2xl bg-white/5 p-6 text-sm">
         <Home className="mb-2 h-5 w-5" />
         <b>Tip:</b> Listings with 5+ photos, instant booking and a flexible policy get up to 3× more bookings. Keep your calendar up to date to avoid host cancellations, which are recorded on-chain.
       </div>

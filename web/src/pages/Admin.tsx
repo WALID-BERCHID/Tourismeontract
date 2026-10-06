@@ -52,7 +52,7 @@ export default function Admin() {
 
   return (
     <Container className="pb-24 pt-10">
-      <h1 className="text-[32px] font-semibold">Admin</h1>
+      <h1 className="font-display text-[32px] font-semibold">Admin</h1>
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
           ["Users", data.users],
@@ -60,14 +60,14 @@ export default function Admin() {
           ["Bookings", data.bookings],
           ["GMV", fmt(data.gmvUsd, false)],
         ].map(([k, v]) => (
-          <div key={k} className="rounded-2xl border border-ink-faint p-5">
+          <div key={k} className="glass rounded-3xl p-5">
             <div className="text-2xl font-semibold">{v}</div>
             <div className="text-sm text-ink-muted">{k}</div>
           </div>
         ))}
       </div>
 
-      <h2 className="mb-4 mt-12 flex items-center gap-2 text-[22px] font-semibold">
+      <h2 className="mb-4 mt-12 flex items-center gap-2 font-display text-[22px] font-semibold">
         <Gavel className="h-5 w-5" /> Open disputes
       </h2>
       <p className="mb-6 text-sm text-ink-muted">Connect the arbiter wallet configured in the escrow contract to settle cases. The refund percentage goes to the guest; the rest is paid to the host minus fees.</p>
@@ -76,7 +76,7 @@ export default function Admin() {
       ) : (
         <div className="space-y-4">
           {data.disputes.map((b) => (
-            <div key={b.id} className="flex flex-wrap items-center gap-6 rounded-2xl border border-ink-line p-5">
+            <div key={b.id} className="flex flex-wrap items-center gap-6 glass rounded-3xl p-5">
               <div className="min-w-[240px] flex-1">
                 <div className="flex items-center gap-2">
                   <StatusBadge status={b.status} /> <b>{b.code}</b>
@@ -101,7 +101,7 @@ export default function Admin() {
         </div>
       )}
 
-      <h2 className="mb-4 mt-12 text-[22px] font-semibold">Recent bookings</h2>
+      <h2 className="mb-4 mt-12 font-display text-[22px] font-semibold">Recent bookings</h2>
       <div className="overflow-x-auto rounded-2xl border border-ink-faint">
         <table className="w-full min-w-[720px] text-left text-sm">
           <tbody className="divide-y divide-ink-faint">

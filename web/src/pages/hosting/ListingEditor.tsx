@@ -20,6 +20,7 @@ import { CATEGORY_ICONS, ChainIcon, amenityIcon } from "../../components/icons";
 import { Alert, Button, Container, Counter, Img, Input, PageLoader, Textarea, Toggle } from "../../components/ui";
 
 type Draft = {
+  kind: "stay" | "experience";
   title: string;
   propertyType: string;
   roomType: "entire" | "private" | "shared";
@@ -48,9 +49,15 @@ type Draft = {
   checkInTime: string;
   checkOutTime: string;
   status: "draft" | "published" | "unlisted";
+  durationHours: number;
+  startTime: string;
+  meetingPoint: string;
+  languages: string[];
+  includes: string[];
 };
 
 const EMPTY: Draft = {
+  kind: "stay",
   title: "",
   propertyType: "",
   roomType: "entire",
@@ -79,7 +86,14 @@ const EMPTY: Draft = {
   checkInTime: "15:00",
   checkOutTime: "11:00",
   status: "draft",
+  durationHours: 3,
+  startTime: "10:00",
+  meetingPoint: "",
+  languages: ["English"],
+  includes: [],
 };
+
+const LANGUAGES = ["English", "French", "Arabic", "Spanish", "Portuguese", "German", "Italian", "Japanese", "Tamazight", "Indonesian"];
 
 const STEPS = [
   { id: "type", label: "Property type" },
@@ -93,18 +107,25 @@ const STEPS = [
 ] as const;
 type StepId = (typeof STEPS)[number]["id"] | "availability" | "payments";
 
+const EXPERIENCE_STEP_LABELS: Record<string, string> = { type: "Experience type", location: "Meeting point", basics: "Group & duration", amenities: "What's included", pricing: "Price & policy" };
+
 function validate(step: StepId, d: Draft): string | null {
+  const exp = d.kind === "experience";
   switch (step) {
     case "type":
-      return !d.propertyType ? "Choose a property type" : !d.category ? "Choose a category" : null;
+      return !d.propertyType ? (exp ? "Choose an experience type" : "Choose a property type") : !d.category ? "Choose a category" : null;
     case "location":
-      return !d.city || !d.country ? "Add a city and country" : d.lat == null ? "Place the pin on the map" : null;
+      return !d.city || !d.country ? "Add a city and country" : d.lat == null ? "Place the pin on the map" : exp && !d.meetingPoint.trim() ? "Describe the meeting point" : null;
+    case "basics":
+      return exp && d.durationHours <= 0 ? "Set the duration" : null;
+    case "amenities":
+      return exp && d.includes.length === 0 ? "List at least one thing that's included" : null;
     case "photos":
       return d.photos.length < 1 ? "Add at least one photo (5+ recommended)" : null;
     case "description":
       return d.title.trim().length < 10 ? "Title needs at least 10 characters" : d.description.trim().length < 30 ? "Description needs at least 30 characters" : null;
     case "pricing":
-      return d.priceUsd < 10 ? "Minimum price is $10" : d.maxNights < d.minNights ? "Maximum nights must be ≥ minimum" : null;
+      return d.priceUsd < 10 ? "Minimum price is $10" : !exp && d.maxNights < d.minNights ? "Maximum nights must be ≥ minimum" : null;
     default:
       return null;
   }
@@ -165,7 +186,7 @@ function LocationStep({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }
           </Button>
         </div>
         {results.length > 0 && (
-          <div className="absolute z-[500] mt-2 w-full overflow-hidden rounded-xl bg-white shadow-pop">
+          <div className="absolute z-[500] mt-2 w-full overflow-hidden rounded-xl bg-surface shadow-pop">
             {results.map((r) => (
               <button key={r.display_name} type="button" onClick={() => pick(r)} className="flex w-full items-start gap-3 px-4 py-3 text-left text-sm hover:bg-ink-bg">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0" /> {r.display_name}
@@ -176,7 +197,7 @@ function LocationStep({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }
       </div>
       <div className="h-[340px] overflow-hidden rounded-2xl border border-ink-line">
         <MapContainer center={[d.lat ?? 31.63, d.lng ?? -7.99]} zoom={d.lat ? 13 : 5} className="h-full w-full">
-          <TileLayer attribution="&copy; OpenStreetMap &copy; CARTO" url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+          <TileLayer attribution="&copy; OpenStreetMap &copy; CARTO" url="https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png" />
           <ClickToPlace onPick={(lat, lng) => set({ lat, lng })} />
           <Recenter lat={d.lat} lng={d.lng} />
           {d.lat != null && d.lng != null && (
@@ -190,6 +211,9 @@ function LocationStep({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }
         </MapContainer>
       </div>
       <p className="text-sm text-ink-muted">Click the map or drag the pin to your exact location. Guests only see an approximate area until they book.</p>
+      {d.kind === "experience" && (
+        <Input label="Meeting point (shown to guests after booking)" value={d.meetingPoint} onChange={(e) => set({ meetingPoint: e.target.value })} placeholder="e.g. Café de France terrace, Jemaa el-Fna – look for the Tourisme flag" />
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <Input label="Street address (private)" value={d.address} onChange={(e) => set({ address: e.target.value })} />
         <Input label="Neighborhood / landmark" value={d.neighborhood} onChange={(e) => set({ neighborhood: e.target.value })} />
@@ -260,19 +284,19 @@ function PhotosStep({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) 
           {d.photos.map((p, i) => (
             <div key={`${p}-${i}`} className={clsx("group relative overflow-hidden rounded-xl", i === 0 && "col-span-2 sm:col-span-3")}>
               <Img src={p} alt={`Photo ${i + 1}`} seed={i} className={clsx("w-full", i === 0 ? "aspect-[16/9]" : "aspect-[4/3]")} />
-              {i === 0 && <span className="absolute left-3 top-3 rounded-md bg-white px-2.5 py-1 text-xs font-semibold shadow">Cover photo</span>}
+              {i === 0 && <span className="absolute left-3 top-3 rounded-md bg-surface px-2.5 py-1 text-xs font-semibold shadow">Cover photo</span>}
               <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
                 {i > 0 && (
-                  <button type="button" onClick={() => move(i, -1)} aria-label="Move left" className="rounded-full bg-white p-1.5 shadow">
+                  <button type="button" onClick={() => move(i, -1)} aria-label="Move left" className="rounded-full bg-surface p-1.5 shadow">
                     <ArrowLeft className="h-4 w-4" />
                   </button>
                 )}
                 {i < d.photos.length - 1 && (
-                  <button type="button" onClick={() => move(i, 1)} aria-label="Move right" className="rounded-full bg-white p-1.5 shadow">
+                  <button type="button" onClick={() => move(i, 1)} aria-label="Move right" className="rounded-full bg-surface p-1.5 shadow">
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
-                <button type="button" onClick={() => set({ photos: d.photos.filter((_, j) => j !== i) })} aria-label="Remove" className="rounded-full bg-white p-1.5 shadow">
+                <button type="button" onClick={() => set({ photos: d.photos.filter((_, j) => j !== i) })} aria-label="Remove" className="rounded-full bg-surface p-1.5 shadow">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
@@ -299,7 +323,7 @@ function PaymentsPanel({ listing, onChange }: { listing: Listing; onChange: () =
     setBusy(net.id);
     try {
       const policy = listing.cancellationPolicy || "flexible";
-      const uri = `${window.location.origin}/rooms/${listing.id}`;
+      const uri = `${window.location.origin}/${listing.kind === "experience" ? "experiences" : "rooms"}/${listing.id}`;
       let result: { listingId: string; txHash: string };
       if (net.chain === "evm") {
         const nativeUsd = rates.usd[net.nativeSymbol] || rates.usd.ETH;
@@ -349,7 +373,7 @@ function PaymentsPanel({ listing, onChange }: { listing: Listing; onChange: () =
       {meta?.networks.map((n) => {
         const pub = listing.chains.find((c) => c.network === n.id);
         return (
-          <div key={n.id} className="flex flex-wrap items-center gap-4 rounded-2xl border border-ink-line p-5">
+          <div key={n.id} className="flex flex-wrap items-center gap-4 glass rounded-3xl p-5">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ink-bg">
               <ChainIcon chain={n.chain} className="h-5 w-5" />
             </span>
@@ -358,7 +382,7 @@ function PaymentsPanel({ listing, onChange }: { listing: Listing; onChange: () =
               <div className="text-sm text-ink-muted">{pub ? `Listing #${pub.chainListingId} · accepting ${n.tokens.map((t) => t.symbol).join(", ")}` : `Accept ${n.tokens.map((t) => t.symbol).join(", ")}`}</div>
             </div>
             {pub ? (
-              <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
+              <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-3 py-1.5 text-sm font-semibold text-emerald-300">
                 <Check className="h-4 w-4" /> Live
               </span>
             ) : (
@@ -405,7 +429,7 @@ function AvailabilityPanel({ listing }: { listing: Listing }) {
   };
   return (
     <div>
-      <p className="mb-6 text-ink-soft">Select a range to block nights (e.g. personal use, bookings elsewhere) or reopen blocked nights. Booked nights are struck through.</p>
+      <p className="mb-6 text-ink-soft">Select a range to block dates (e.g. personal use, bookings elsewhere) or reopen blocked nights. Booked nights are struck through.</p>
       <DateRangePicker checkIn={range[0]} checkOut={range[1]} onChange={(a, b) => setRange([a, b])} occupied={occupied} />
       <div className="mt-6 flex flex-wrap gap-3">
         <Button variant="dark" disabled={!range[1]} loading={busy} onClick={() => apply(true)}>
@@ -424,19 +448,20 @@ function AvailabilityPanel({ listing }: { listing: Listing }) {
 // Editor
 // ---------------------------------------------------------------------------
 
-export default function ListingEditor() {
+export default function ListingEditor({ kind = "stay" }: { kind?: "stay" | "experience" }) {
   const { id } = useParams();
   const isNew = !id;
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: meta } = useMeta();
-  const [d, setD] = useState<Draft>(EMPTY);
+  const [d, setD] = useState<Draft>({ ...EMPTY, kind, ...(kind === "experience" ? { bedrooms: 0, beds: 0, baths: 0, guests: 6, cleaningFeeUsd: 0, priceUsd: 120, houseRules: [] } : {}) });
+  const exp = d.kind === "experience";
   const [step, setStep] = useState<StepId>(isNew ? "type" : "type");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<number | null>(id ? Number(id) : null);
   const [rule, setRule] = useState("");
-  useTitle(isNew ? "Create listing" : "Edit listing");
+  useTitle(isNew ? (kind === "experience" ? "Create experience" : "Create listing") : exp ? "Edit experience" : "Edit listing");
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["edit-listing", savedId],
@@ -447,6 +472,7 @@ export default function ListingEditor() {
     if (data?.listing && (!isNew || savedId)) {
       const l = data.listing;
       setD({
+        kind: l.kind || "stay",
         title: l.title,
         propertyType: l.propertyType,
         roomType: l.roomType,
@@ -475,6 +501,11 @@ export default function ListingEditor() {
         checkInTime: l.checkInTime || "15:00",
         checkOutTime: l.checkOutTime || "11:00",
         status: l.status,
+        durationHours: l.durationHours || 0,
+        startTime: l.startTime || "",
+        meetingPoint: l.meetingPoint || "",
+        languages: l.languages || [],
+        includes: l.includes || [],
       });
     }
   }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -523,7 +554,7 @@ export default function ListingEditor() {
     }
     const l = await save("published");
     if (l) {
-      toast.success("Your listing is live! 🎉");
+      toast.success(exp ? "Your experience is live! 🎉" : "Your listing is live! 🎉");
       setStep("payments");
     }
   };
@@ -533,7 +564,34 @@ export default function ListingEditor() {
   const chip = (on: boolean) => clsx("rounded-xl border-2 p-4 text-left transition", on ? "border-ink bg-ink-bg" : "border-ink-faint hover:border-ink-line");
 
   const content: Record<StepId, React.ReactNode> = {
-    type: (
+    type: exp ? (
+      <div className="space-y-10">
+        <div>
+          <h3 className="mb-4 text-lg font-semibold">What kind of experience is it?</h3>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {meta?.experienceTypes.map((t) => (
+              <button key={t} type="button" onClick={() => set({ propertyType: t })} className={chip(d.propertyType === t)}>
+                <span className="font-semibold">{t}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 className="mb-4 text-lg font-semibold">Pick the category guests will find you in</h3>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {meta?.experienceCategories.map((c) => {
+              const Icon = CATEGORY_ICONS[c.icon];
+              return (
+                <button key={c.id} type="button" onClick={() => set({ category: c.id })} className={chip(d.category === c.id)}>
+                  {Icon && <Icon className="mb-2 h-7 w-7" strokeWidth={1.4} />}
+                  <span className="text-sm font-semibold">{c.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    ) : (
       <div className="space-y-10">
         <div>
           <h3 className="mb-4 text-lg font-semibold">Which of these best describes your place?</h3>
@@ -579,7 +637,30 @@ export default function ListingEditor() {
       </div>
     ),
     location: <LocationStep d={d} set={set} />,
-    basics: (
+    basics: exp ? (
+      <div className="space-y-8">
+        <div className="divide-y divide-ink-faint">
+          <Counter label="Maximum group size" sub="Experiences are booked privately – one group per date" value={d.guests} min={1} max={50} onChange={(v) => set({ guests: v })} />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input label="Duration (hours)" type="number" min={0.5} step={0.5} max={240} value={d.durationHours} onChange={(e) => set({ durationHours: Number(e.target.value) })} />
+          <Input label="Start time" type="time" value={d.startTime} onChange={(e) => set({ startTime: e.target.value })} />
+        </div>
+        <div>
+          <h3 className="mb-3 font-semibold">Languages you host in</h3>
+          <div className="flex flex-wrap gap-2">
+            {[...new Set([...LANGUAGES, ...d.languages])].map((l) => {
+              const on = d.languages.includes(l);
+              return (
+                <button key={l} type="button" onClick={() => set({ languages: on ? d.languages.filter((x) => x !== l) : [...d.languages, l] })} className={clsx("rounded-full border px-4 py-2 text-sm font-medium transition", on ? "border-transparent bg-brand-gradient text-white" : "border-white/15 hover:border-brand/60")}>
+                  {l}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    ) : (
       <div className="divide-y divide-ink-faint">
         <Counter label="Guests" value={d.guests} min={1} max={50} onChange={(v) => set({ guests: v })} />
         <Counter label="Bedrooms" value={d.bedrooms} min={0} max={50} onChange={(v) => set({ bedrooms: v })} />
@@ -587,7 +668,27 @@ export default function ListingEditor() {
         <Counter label="Bathrooms" value={d.baths} min={0} max={50} onChange={(v) => set({ baths: v })} />
       </div>
     ),
-    amenities: (
+    amenities: exp ? (
+      <div className="space-y-4">
+        <p className="text-ink-soft">List what guests get for the price: food, equipment, transfers, tickets, souvenirs…</p>
+        <div className="space-y-2">
+          {d.includes.map((r, i) => (
+            <div key={i} className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3">
+              {r}
+              <button type="button" onClick={() => set({ includes: d.includes.filter((_, j) => j !== i) })} aria-label="Remove">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input className="flex-1" placeholder="e.g. All tastings (10+ dishes)" value={rule} onChange={(e) => setRule(e.target.value)} onKeyDown={(e) => e.key === "Enter" && rule.trim() && (e.preventDefault(), set({ includes: [...d.includes, rule.trim()] }), setRule(""))} />
+          <Button type="button" variant="outline" disabled={!rule.trim()} onClick={() => (set({ includes: [...d.includes, rule.trim()] }), setRule(""))}>
+            Add
+          </Button>
+        </div>
+      </div>
+    ) : (
       <div className="space-y-8">
         {[...new Set(meta?.amenities.map((a) => a.group))].map((g) => (
           <div key={g}>
@@ -614,7 +715,7 @@ export default function ListingEditor() {
     description: (
       <div className="space-y-6">
         <div>
-          <Textarea label="Title" rows={2} maxLength={100} value={d.title} onChange={(e) => set({ title: e.target.value })} placeholder="Riad with rooftop pool in the heart of the Medina" hint={`${d.title.length}/100 · Short titles work best. Have fun with it!`} />
+          <Textarea label="Title" rows={2} maxLength={100} value={d.title} onChange={(e) => set({ title: e.target.value })} placeholder={exp ? "Sunset camel trek with a Berber dinner under the stars" : "Riad with rooftop pool in the heart of the Medina"} hint={`${d.title.length}/100 · Short titles work best. Have fun with it!`} />
         </div>
         <Textarea
           label="Description"
@@ -622,7 +723,7 @@ export default function ListingEditor() {
           maxLength={5000}
           value={d.description}
           onChange={(e) => set({ description: e.target.value })}
-          placeholder="Share what makes your place special: the space, the neighbourhood, how guests get around…"
+          placeholder={exp ? "Describe what you'll do together, hour by hour, and what makes it special…" : "Share what makes your place special: the space, the neighbourhood, how guests get around…"}
           hint={`${d.description.length}/5000`}
         />
       </div>
@@ -630,14 +731,20 @@ export default function ListingEditor() {
     pricing: (
       <div className="space-y-10">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Input label="Nightly price (USD)" type="number" min={10} value={d.priceUsd} onChange={(e) => set({ priceUsd: Number(e.target.value) })} hint={`Guests pay about $${Math.round(d.priceUsd * 1.08)} incl. service fee · you earn $${Math.round(d.priceUsd * 0.97)}`} />
-          <Input label="Cleaning fee (USD)" type="number" min={0} value={d.cleaningFeeUsd} onChange={(e) => set({ cleaningFeeUsd: Number(e.target.value) })} hint="Charged once per stay" />
-          <Input label="Minimum nights" type="number" min={1} max={365} value={d.minNights} onChange={(e) => set({ minNights: Number(e.target.value) })} />
-          <Input label="Maximum nights" type="number" min={1} max={365} value={d.maxNights} onChange={(e) => set({ maxNights: Number(e.target.value) })} />
-          <Input label="Check-in from" type="time" value={d.checkInTime} onChange={(e) => set({ checkInTime: e.target.value })} />
-          <Input label="Checkout by" type="time" value={d.checkOutTime} onChange={(e) => set({ checkOutTime: e.target.value })} />
+          {exp ? (
+            <Input label="Price per private group (USD)" type="number" min={10} value={d.priceUsd} onChange={(e) => set({ priceUsd: Number(e.target.value) })} hint={`Up to ${d.guests} guests · ≈ $${Math.round(d.priceUsd / Math.max(1, d.guests))}/person at full capacity · you earn $${Math.round(d.priceUsd * 0.97)}`} />
+          ) : (
+            <>
+              <Input label="Nightly price (USD)" type="number" min={10} value={d.priceUsd} onChange={(e) => set({ priceUsd: Number(e.target.value) })} hint={`Guests pay about $${Math.round(d.priceUsd * 1.08)} incl. service fee · you earn $${Math.round(d.priceUsd * 0.97)}`} />
+              <Input label="Cleaning fee (USD)" type="number" min={0} value={d.cleaningFeeUsd} onChange={(e) => set({ cleaningFeeUsd: Number(e.target.value) })} hint="Charged once per stay" />
+              <Input label="Minimum nights" type="number" min={1} max={365} value={d.minNights} onChange={(e) => set({ minNights: Number(e.target.value) })} />
+              <Input label="Maximum nights" type="number" min={1} max={365} value={d.maxNights} onChange={(e) => set({ maxNights: Number(e.target.value) })} />
+              <Input label="Check-in from" type="time" value={d.checkInTime} onChange={(e) => set({ checkInTime: e.target.value })} />
+              <Input label="Checkout by" type="time" value={d.checkOutTime} onChange={(e) => set({ checkOutTime: e.target.value })} />
+            </>
+          )}
         </div>
-        <div className="flex items-center justify-between gap-6 rounded-2xl border border-ink-line p-5">
+        <div className="flex items-center justify-between gap-6 glass rounded-3xl p-5">
           <div>
             <div className="font-semibold">Instant Book</div>
             <div className="text-sm text-ink-muted">Guests can book right away. Turn off to review each request (payment is held in escrow meanwhile).</div>
@@ -657,10 +764,10 @@ export default function ListingEditor() {
           <p className="mt-2 text-xs text-ink-muted">The policy is enforced by the escrow contract. Changes apply to new bookings only.</p>
         </div>
         <div>
-          <h3 className="mb-3 text-lg font-semibold">House rules</h3>
+          <h3 className="mb-3 text-lg font-semibold">{exp ? "Good to know" : "House rules"}</h3>
           <div className="space-y-2">
             {d.houseRules.map((r, i) => (
-              <div key={i} className="flex items-center justify-between rounded-xl bg-ink-bg px-4 py-3">
+              <div key={i} className="flex items-center justify-between rounded-xl bg-white/5 px-4 py-3">
                 {r}
                 <button type="button" onClick={() => set({ houseRules: d.houseRules.filter((_, j) => j !== i) })} aria-label="Remove rule">
                   <X className="h-4 w-4" />
@@ -679,7 +786,7 @@ export default function ListingEditor() {
     ),
     publish: (
       <div className="space-y-6">
-        <div className="overflow-hidden rounded-2xl shadow-card sm:max-w-sm">
+        <div className="glass overflow-hidden rounded-3xl sm:max-w-sm">
           <Img src={d.photos[0]} alt={d.title} className="aspect-[4/3] w-full" />
           <div className="p-5">
             <div className="flex justify-between gap-3">
@@ -692,17 +799,15 @@ export default function ListingEditor() {
               {d.city}, {d.country}
             </p>
             <p className="mt-1">
-              <b>${d.priceUsd}</b> night
+              <b className="font-mono">${d.priceUsd}</b> {exp ? "per group" : "night"}
             </p>
           </div>
         </div>
         <ul className="space-y-3 text-ink-soft">
-          <li>✓ {d.photos.length} photos · {d.amenities.length} amenities</li>
+          <li>✓ {d.photos.length} photos · {exp ? `${d.includes.length} inclusions` : `${d.amenities.length} amenities`}</li>
+          <li>{exp ? `✓ Up to ${d.guests} guests · ${d.durationHours} h · starts ${d.startTime || "flexible"}` : `✓ ${d.guests} guests · ${d.bedrooms} bedrooms · ${d.beds} beds · ${d.baths} baths`}</li>
           <li>
-            ✓ {d.guests} guests · {d.bedrooms} bedrooms · {d.beds} beds · {d.baths} baths
-          </li>
-          <li>
-            ✓ {POLICY_TEXT[d.cancellationPolicy].label} cancellation · {d.minNights}–{d.maxNights} nights · {d.instantBook ? "Instant Book" : "Request to book"}
+            ✓ {POLICY_TEXT[d.cancellationPolicy].label} cancellation · {exp ? "one date per booking" : `${d.minNights}–${d.maxNights} nights`} · {d.instantBook ? "Instant Book" : "Request to book"}
           </li>
         </ul>
         <Alert tone="info">After publishing you'll enable payments on your preferred blockchains – that's when guests can book.</Alert>
@@ -712,19 +817,33 @@ export default function ListingEditor() {
     payments: savedId && data ? <PaymentsPanel listing={data.listing} onChange={() => refetch()} /> : null,
   };
 
-  const editSections: { id: StepId; label: string }[] = [...STEPS.filter((s) => s.id !== "publish"), { id: "availability", label: "Availability" }, { id: "payments", label: "On-chain payments" }];
-  const titles: Record<StepId, string> = {
-    type: "Tell us about your place",
-    location: "Where's your place located?",
-    basics: "Share some basics about your place",
-    amenities: "Tell guests what your place has to offer",
-    photos: "Add some photos of your place",
-    description: "Now, let's give your place a title and description",
-    pricing: "Set your price and policies",
-    publish: "Review your listing",
-    availability: "Availability",
-    payments: "Get paid on-chain",
-  };
+  const stepLabel = (id: string, label: string) => (exp && EXPERIENCE_STEP_LABELS[id]) || label;
+  const editSections: { id: StepId; label: string }[] = [...STEPS.filter((s) => s.id !== "publish").map((s) => ({ id: s.id, label: stepLabel(s.id, s.label) })), { id: "availability", label: "Availability" }, { id: "payments", label: "On-chain payments" }];
+  const titles: Record<StepId, string> = exp
+    ? {
+        type: "Tell us about your experience",
+        location: "Where do guests meet you?",
+        basics: "Group size, duration and languages",
+        amenities: "What's included in the price?",
+        photos: "Add photos of the experience",
+        description: "Give your experience a title and description",
+        pricing: "Set your price and policy",
+        publish: "Review your experience",
+        availability: "Availability",
+        payments: "Get paid on-chain",
+      }
+    : {
+        type: "Tell us about your place",
+        location: "Where's your place located?",
+        basics: "Share some basics about your place",
+        amenities: "Tell guests what your place has to offer",
+        photos: "Add some photos of your place",
+        description: "Now, let's give your place a title and description",
+        pricing: "Set your price and policies",
+        publish: "Review your listing",
+        availability: "Availability",
+        payments: "Get paid on-chain",
+      };
   const editing = !isNew || step === "payments";
 
   return (
@@ -736,7 +855,7 @@ export default function ListingEditor() {
           </Link>
           {savedId && (
             <div className="flex items-center gap-3">
-              <Link to={`/rooms/${savedId}`} target="_blank" className="flex items-center gap-1 text-sm font-semibold underline">
+              <Link to={`/${exp ? "experiences" : "rooms"}/${savedId}`} target="_blank" className="flex items-center gap-1 text-sm font-semibold underline">
                 Preview <ExternalLink className="h-3.5 w-3.5" />
               </Link>
               {!isNew && d.status === "published" && (
@@ -757,7 +876,7 @@ export default function ListingEditor() {
           {editing && (
             <nav className="scrollbar-hide flex gap-2 overflow-x-auto lg:sticky lg:top-28 lg:block lg:space-y-1 lg:self-start">
               {editSections.map((s) => (
-                <button key={s.id} type="button" onClick={() => (setStep(s.id), setError(null))} className={clsx("shrink-0 rounded-xl px-4 py-3 text-left text-sm font-medium transition lg:w-full", step === s.id ? "bg-ink text-white" : "hover:bg-ink-bg")}>
+                <button key={s.id} type="button" onClick={() => (setStep(s.id), setError(null))} className={clsx("shrink-0 rounded-xl px-4 py-3 text-left text-sm font-medium transition lg:w-full", step === s.id ? "bg-ink text-canvas" : "hover:bg-ink-bg")}>
                   {s.label}
                 </button>
               ))}
@@ -765,7 +884,7 @@ export default function ListingEditor() {
           )}
           <div className="mx-auto w-full max-w-3xl">
             {!editing && <div className="mb-2 text-sm font-semibold text-ink-muted">Step {idx + 1} of {STEPS.length}</div>}
-            <h1 className="mb-8 text-[28px] font-semibold leading-tight sm:text-[32px]">{titles[step]}</h1>
+            <h1 className="mb-8 font-display text-[28px] font-semibold leading-tight sm:text-[32px]">{titles[step]}</h1>
             {error && (
               <Alert tone="error" className="mb-6">
                 {error}
@@ -789,7 +908,7 @@ export default function ListingEditor() {
       </Container>
 
       {!editing && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink-faint bg-white">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink-faint bg-surface">
           <div className="h-1.5 bg-ink-faint">
             <div className="h-full bg-ink transition-all duration-500" style={{ width: `${((idx + 1) / STEPS.length) * 100}%` }} />
           </div>
@@ -805,7 +924,7 @@ export default function ListingEditor() {
               )}
               {step === "publish" ? (
                 <Button onClick={publish} loading={saving}>
-                  Publish listing
+                  {exp ? "Publish experience" : "Publish listing"}
                 </Button>
               ) : (
                 <Button variant="dark" onClick={next}>
