@@ -216,7 +216,28 @@ export function openDb(file = config.dbFile) {
   db = new DatabaseSync(file);
   db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");
   db.exec(SCHEMA);
+  migrate(db);
   return db;
+}
+
+/** Additive migrations for databases created before a column existed. */
+const MIGRATIONS = {
+  listings: [
+    ["kind", "TEXT NOT NULL DEFAULT 'stay'"],
+    ["duration_hours", "REAL NOT NULL DEFAULT 0"],
+    ["start_time", "TEXT NOT NULL DEFAULT ''"],
+    ["meeting_point", "TEXT NOT NULL DEFAULT ''"],
+    ["languages", "TEXT NOT NULL DEFAULT '[]'"],
+    ["includes", "TEXT NOT NULL DEFAULT '[]'"],
+  ],
+};
+
+function migrate(d) {
+  for (const [table, cols] of Object.entries(MIGRATIONS)) {
+    const existing = new Set(d.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
+    for (const [name, def] of cols) if (!existing.has(name)) d.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${def}`);
+  }
+  d.exec("CREATE INDEX IF NOT EXISTS listings_kind ON listings(kind)");
 }
 
 export function getDb() {

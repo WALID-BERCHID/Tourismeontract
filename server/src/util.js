@@ -128,6 +128,7 @@ export function serializeListing(l, { full = false, userId = null } = {}) {
   const out = {
     id: l.id,
     slug: l.slug,
+    kind: l.kind || "stay",
     title: l.title,
     propertyType: l.property_type,
     roomType: l.room_type,
@@ -151,6 +152,9 @@ export function serializeListing(l, { full = false, userId = null } = {}) {
     chains,
     hostId: l.host_id,
     isNew: rating.count === 0,
+    durationHours: l.duration_hours || 0,
+    startTime: l.start_time || "",
+    languages: json(l.languages, []),
     wishlisted: userId ? !!get(`SELECT 1 FROM wishlists WHERE user_id = ? AND listing_id = ?`, userId, l.id) : false,
   };
   if (full) {
@@ -159,6 +163,8 @@ export function serializeListing(l, { full = false, userId = null } = {}) {
       neighborhood: l.neighborhood,
       amenities: json(l.amenities, []),
       houseRules: json(l.house_rules, []),
+      meetingPoint: l.meeting_point || "",
+      includes: json(l.includes, []),
       cancellationPolicy: l.cancellation_policy,
       minNights: l.min_nights,
       maxNights: l.max_nights,

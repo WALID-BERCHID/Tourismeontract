@@ -26,9 +26,19 @@
         "cape-town-camps-bay-villa": 15,
         "agadir-family-apartment": 16,
         "tuscany-farmhouse": 17,
-        "dubai-marina-skyline-studio": 18
+        "dubai-marina-skyline-studio": 18,
+        "marrakech-medina-food-tour-by-night": 19,
+        "merzouga-sunset-camel-trek-and-berber-dinner": 20,
+        "chefchaouen-blue-city-photo-walk": 21,
+        "taghazout-surf-lesson-private-coach": 22,
+        "fes-tagine-cooking-class-in-a-riad": 23,
+        "atlas-berber-villages-day-hike": 24,
+        "lisbon-fado-and-tascas-evening": 25,
+        "essaouira-argan-and-hammam-wellness-afternoon": 26,
+        "kyoto-tea-ceremony-and-zen-garden": 27,
+        "bali-ubud-rice-terrace-cycling-and-temple": 28
       },
-      "deployedAt": "2026-09-30T16:35:02.121Z"
+      "deployedAt": "2026-10-06T10:07:37.867Z"
     }
   }
 }
