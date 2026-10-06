@@ -16,10 +16,12 @@
     "dev": "concurrently -n chain,deploy,api,web -c yellow,magenta,cyan,green \"npm run chain\" \"wait-on tcp:8545 && npm run deploy:local\" \"wait-on tcp:8545 file:web/src/config/deployments.json && npm run server\" \"npm run web\"",
     "test": "npm test -w contracts/evm && npm test -w server",
     "reset-db": "node -e \"const fs=require('fs');for(const f of ['tourisme.db','tourisme.db-wal','tourisme.db-shm'])fs.rmSync('server/data/'+f,{force:true});console.log('Database removed - it will be re-seeded on next start')\"",
-    "build": "npm run build -w web"
+    "build": "npm run build -w web",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
+    "playwright": "^1.56.1",
     "wait-on": "^8.0.1"
   }
 }

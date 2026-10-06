@@ -1,10 +1,29 @@
-# Tourisme — decentralized stays, paid through smart-contract escrow
+<p align="center">
+  <img src="web/public/og.svg" alt="Tourisme – Travel on-chain" width="100%" />
+</p>
 
-An Airbnb-style marketplace for unique stays (riads, desert camps, villas, city apartments…) where
-**every payment goes through a smart-contract escrow** instead of a company bank account.
-Guests pay in **ETH / POL / USDC on Ethereum, Polygon or Base**, **SOL on Solana** or **EOS on
-Antelope chains**. The contract holds the funds, refunds according to the cancellation policy,
-and releases the payout to the host 24 hours after check-in. Disputes go to an on-chain arbiter.
+# Tourisme — travel on-chain
+
+**Tourisme** is a marketplace for unique stays (riads, desert camps, villas, city apartments…) and
+local **experiences & tours**, where **every payment goes through a smart-contract escrow** instead of
+a company bank account. Guests pay in **ETH / POL / USDC on Ethereum, Polygon or Base**, **SOL on
+Solana** or **EOS on Antelope chains**. The contract holds the funds, refunds according to the
+cancellation policy, and releases the payout to the host 24 hours after check-in. Disputes go to an
+on-chain arbiter.
+
+Founded and operated by **Berchid Walid**.
+
+<p align="center">
+  <img src="docs/screenshots/01-home-hero.png" alt="Landing page" width="100%" />
+</p>
+
+📖 **[How to use — full walkthrough with real transactions and 35 screenshots](docs/HOW_TO_USE.md)**
+(buyer pays 972 USDC into escrow, books an experience in ETH, opens a dispute, the arbiter refunds
+100 % on-chain, the host sees payouts and withdraws).
+
+| Listing | Checkout (USDC into escrow) | Host earnings | Arbiter |
+|---|---|---|---|
+| ![](docs/screenshots/05-listing-page.png) | ![](docs/screenshots/13-checkout-usdc.png) | ![](docs/screenshots/25-host-earnings.png) | ![](docs/screenshots/29-admin-disputes.png) |
 
 ```
 contracts/evm      Solidity escrow (Hardhat) — main, fully tested
@@ -25,11 +44,14 @@ web                React + Vite + Tailwind web app (the Airbnb-like UI)
   get test USDC on testnets, pay into escrow; request-to-book or instant book
 - Trips: upcoming, current, past and cancelled; cancel with a live refund preview; release payment
   early; report a problem (freezes payout); two-sided reviews (optionally recorded on-chain)
+- **Experiences & tours**: private, single-date bookings (food tours, treks, surf lessons, workshops…)
+  priced per group, with duration, languages, inclusions and meeting point — same escrow as stays
 - Wishlists, messaging with hosts, in-app notifications, printable receipts, currency display
   (USD/EUR/MAD/GBP)
 - Sign in with **email + password** or **wallet** (MetaMask/Rabby/Coinbase, Phantom) — no gas
 
 **Hosts**
+- Experience wizard (type, category, meeting point, group & duration, inclusions, price per group)
 - 8-step listing wizard: type, map location (address search + draggable pin), rooms, amenities,
   photo upload (drag & drop, reorder, cover), description, pricing & policies, review & publish
 - One-click **enable payments** per network (creates the listing and prices on-chain)
@@ -44,6 +66,9 @@ web                React + Vite + Tailwind web app (the Airbnb-like UI)
 - Server verifies every payment **on-chain** before recording a booking; an event indexer keeps
   statuses in sync even when users act directly on the contract
 - Admin/arbiter page to resolve disputes on-chain, platform stats
+- Brand & trust pages: About, Trust & Safety, Terms, Privacy, Cookies, Security (responsible
+  disclosure), Contact; `robots.txt`, `sitemap.xml`, Open Graph image
+- Dark "on-chain" visual identity: glass cards, neon gradient accents, Sora/Inter/JetBrains Mono
 - Mobile-first responsive UI with bottom tab bar, full-screen search, sticky reserve bar
 
 ## Quick start (local, ~2 minutes)
@@ -55,8 +80,9 @@ npm install
 npm run dev
 ```
 
-This starts a local Hardhat blockchain, deploys the contracts, publishes the 18 demo listings
-on-chain, and runs the API (http://localhost:4000) and web app (**http://localhost:5173**).
+This starts a local Hardhat blockchain, deploys the contracts, publishes the 18 demo stays and 10
+demo experiences on-chain, and runs the API (http://localhost:4000) and web app
+(**http://localhost:5173**).
 
 ### Demo accounts (password `tourisme123`)
 
@@ -83,6 +109,7 @@ http://localhost:4000/api/dev/emails to see everything that would have been sent
 npm test                          # Solidity tests + API tests (API e2e runs against the local chain if it's up)
 cd contracts/solana && cargo test # Solana program unit tests
 npm run build -w web              # type-check + production build
+npm run screenshots               # drive the whole buyer/host/arbiter flow and refresh docs/screenshots
 ```
 
 ## Deploying to production
